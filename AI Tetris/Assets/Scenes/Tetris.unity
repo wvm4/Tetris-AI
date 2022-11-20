@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 67048417}
   - component: {fileID: 67048416}
   - component: {fileID: 67048415}
+  - component: {fileID: 67048418}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -153,7 +154,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e84ebfe344b42b4c813753c207444fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tetrominoes: []
+  tetrominoes:
+  - tetromino: 0
+    tile: {fileID: 11400000, guid: 10f64db9619f4c642966d763a1c1cc3d, type: 2}
+  - tetromino: 1
+    tile: {fileID: 11400000, guid: dcc7479528c4e4b41a59eaf1d67368ed, type: 2}
+  - tetromino: 2
+    tile: {fileID: 11400000, guid: 750d37856671b964e99f811cbe38c312, type: 2}
+  - tetromino: 3
+    tile: {fileID: 11400000, guid: 04b649bfe457af0469a25992abbe3728, type: 2}
+  - tetromino: 4
+    tile: {fileID: 11400000, guid: 8841f49c5286abe4d82c86e22004abef, type: 2}
+  - tetromino: 5
+    tile: {fileID: 11400000, guid: 2e62e8fa38a13514fb448f92e28f03de, type: 2}
+  - tetromino: 6
+    tile: {fileID: 11400000, guid: 773f9fb21f94e864c86cf5dd2f2f4f05, type: 2}
+  spawnPosition: {x: -1, y: 8, z: 0}
+  boardSize: {x: 10, y: 20}
 --- !u!156049354 &67048416
 Grid:
   m_ObjectHideFlags: 0
@@ -182,6 +199,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &67048418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67048414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e18c90db806ed6c49b981109af97a757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &69212336
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,25 +593,20 @@ MonoBehaviour:
   tetrominoes:
   - tetromino: 0
     tile: {fileID: 11400000, guid: 10f64db9619f4c642966d763a1c1cc3d, type: 2}
-    Cells: []
   - tetromino: 1
     tile: {fileID: 11400000, guid: dcc7479528c4e4b41a59eaf1d67368ed, type: 2}
-    Cells: []
   - tetromino: 2
     tile: {fileID: 11400000, guid: 750d37856671b964e99f811cbe38c312, type: 2}
-    Cells: []
   - tetromino: 3
     tile: {fileID: 11400000, guid: 04b649bfe457af0469a25992abbe3728, type: 2}
-    Cells: []
   - tetromino: 4
     tile: {fileID: 11400000, guid: 8841f49c5286abe4d82c86e22004abef, type: 2}
-    Cells: []
   - tetromino: 5
     tile: {fileID: 11400000, guid: 2e62e8fa38a13514fb448f92e28f03de, type: 2}
-    Cells: []
   - tetromino: 6
     tile: {fileID: 11400000, guid: 773f9fb21f94e864c86cf5dd2f2f4f05, type: 2}
-    Cells: []
+  spawnPosition: {x: 0, y: 0, z: 0}
+  boardSize: {x: 10, y: 20}
 --- !u!483693784 &1533662273
 TilemapRenderer:
   m_ObjectHideFlags: 0
