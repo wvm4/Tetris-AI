@@ -6,46 +6,154 @@ public class Piece : MonoBehaviour
     public TetrominoData data { get; private set; }
     public Vector3Int[] cells { get; private set; }
     public Vector3Int position { get; private set; }
+    public int rotationIndex { get; private set; }
+
+    public float stepDelay = 1f;
+    public float moveDelay = 0.1f;
+    public float lockDelay = 0.5f;
+
+    private float stepTime;
+    private float moveTime;
+    private float lockTime;
+
     public void Initialize(Board board, Vector3Int position, TetrominoData data)
     {
+        this.data = data;
         this.board = board;
         this.position = position;
-        this.data = data;
 
-        if (this.cells == null) {
-            this.cells = new Vector3Int[data.cells.Length];
+        rotationIndex = 0;
+        stepTime = Time.time + stepDelay;
+        moveTime = Time.time + moveDelay;
+        lockTime = 0f;
+
+        if (cells == null) {
+            cells = new Vector3Int[data.cells.Length];
         }
 
-        for (int i = 0; i < data.cells.Length; i++) {
-            this.cells[i] = (Vector3Int)data.cells[i];
+        for (int i = 0; i < cells.Length; i++) {
+            cells[i] = (Vector3Int)data.cells[i];
         }
     }
 
     private void Update()
     {
-        this.board.Clear(this);
+        board.Clear(this);
 
-        if (Input.GetKeyDown(KeyCode.A)) {
-            Move(Vector2Int.left);
-        } else if (Input.GetKeyDown(KeyCode.D)) {
-            Move(Vector2Int.right);
+        // We use a timer to allow the player to make adjustments to the piece
+        // before it locks in place
+        lockTime += Time.deltaTime;
+
+        // Handle rotation
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            Rotate(-1);
+        } else if (Input.GetKeyDown(KeyCode.E)) {
+            Rotate(1);
         }
 
-        this.board.Set(this);
+
+        // Allow the player to hold movement keys but only after a move delay
+        // so it does not move too fast
+        if (Time.time > moveTime) {
+            HandleMoveInputs();
+        }
+
+        // Advance the piece to the next row every x seconds
+        if (Time.time > stepTime) {
+            Step();
+        }
+
+        board.Set(this);
+    }
+
+    private void HandleMoveInputs()
+    {
+        // Soft drop movement
+        if (Input.GetKey(KeyCode.S))
+        {
+            if (Move(Vector2Int.down)) {
+                // Update the step time to prevent double movement
+                stepTime = Time.time + stepDelay;
+            }
+        }
+
+        // Hard drop movement
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            HardDrop();
+        }
+
+        // Left/right movement
+        if (Input.GetKey(KeyCode.A)) {
+            Move(Vector2Int.left);
+        } else if (Input.GetKey(KeyCode.D)) {
+            Move(Vector2Int.right);
+        }
+    }
+
+    private void Step()
+    {
+        stepTime = Time.time + stepDelay;
+
+        // Step down to the next row
+        Move(Vector2Int.down);
+
+        // Once the piece has been inactive for too long it becomes locked
+        if (lockTime >= lockDelay) {
+            Lock();
+        }
+    }
+
+    private void HardDrop()
+    {
+        while (Move(Vector2Int.down)) {
+            continue;
+        }
+
+        Lock();
+    }
+
+    private void Lock()
+    {
+        board.Set(this);
+        board.ClearLines();
+        board.SpawnPiece();
     }
 
     private bool Move(Vector2Int translation)
     {
-        Vector3Int newPosition = this.position;
+        Vector3Int newPosition = position;
         newPosition.x += translation.x;
         newPosition.y += translation.y;
 
-        bool valid = this.board.IsValidPosition(this, newPosition);
+        bool valid = board.IsValidPosition(this, newPosition);
 
-        if (valid) {
-            this.position = newPosition;
+        // Only save the movement if the new position is valid
+        if (valid)
+        {
+            position = newPosition;
+            moveTime = Time.time + moveDelay;
+            lockTime = 0f; // reset
         }
+
         return valid;
+    }
+
+    private void Rotate(int direction)
+    {
+        // Store the current rotation in case the rotation fails
+        // and we need to revert
+        int originalRotation = rotationIndex;
+
+        // Rotate all of the cells using a rotation matrix
+        rotationIndex = Wrap(rotationIndex + direction, 0, 4);
+        ApplyRotationMatrix(direction);
+
+        // Revert the rotation if the wall kick tests fail
+        if (!TestWallKicks(rotationIndex, direction))
+        {
+            rotationIndex = originalRotation;
+            ApplyRotationMatrix(-direction);
+        }
     }
 
 }
