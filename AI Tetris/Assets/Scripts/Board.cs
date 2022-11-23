@@ -51,7 +51,6 @@ public class Board : MonoBehaviour
     {
         tilemap.ClearAllTiles();
 
-        // Do anything else you want on game over here..
     }
 
     public void Set(Piece piece)
