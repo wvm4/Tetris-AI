@@ -9,10 +9,11 @@ public class Main : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //GameObject asdf = Instantiate() to save reference to player
+        //GameObject gameObject = Instantiate() to save reference to player
         Instantiate(player, new Vector3(8,0,0), Quaternion.identity);
         Instantiate(player, new Vector3(-8,0,0), Quaternion.identity);
 
+        Time.fixedDeltaTime = 1f / 2f;
 
     }
 

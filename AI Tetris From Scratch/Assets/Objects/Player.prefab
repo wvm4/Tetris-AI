@@ -1,5 +1,57 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5599937749434377410
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5781412512448169498}
+  - component: {fileID: 1796979380656480477}
+  m_Layer: 0
+  m_Name: Piece
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5781412512448169498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5599937749434377410}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6576278744566084759}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1796979380656480477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5599937749434377410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed7d43eeee3300f46964cc1a989dabb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data:
+    tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  tilemap: {fileID: 6576278743376284785}
+  blocks: []
+  position: {x: 0, y: 0}
+  rotationIndex: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,6 +357,7 @@ Transform:
   - {fileID: 6576278744421112322}
   - {fileID: 6576278744569137430}
   - {fileID: 6576278742796584249}
+  - {fileID: 5781412512448169498}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -330,6 +383,102 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a2b37980da5adc0409868705f82d1501, type: 2}
   - {fileID: 11400000, guid: b1b53750534153f428f8ce0199ecb051, type: 2}
   - {fileID: 11400000, guid: 8ad656b3f78dfe144903caf38f33a2cf, type: 2}
+  tetrominoBag1:
+  - tetromino: 0
+    tile: {fileID: 11400000, guid: 02d92267b40cbf04b8918f1b866443d6, type: 2}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 11400000, guid: 02d92267b40cbf04b8918f1b866443d6, type: 2}
+    blocks: []
+  - tetromino: 1
+    tile: {fileID: 11400000, guid: 8ad656b3f78dfe144903caf38f33a2cf, type: 2}
+    blocks: []
+  - tetromino: 1
+    tile: {fileID: 11400000, guid: 8ad656b3f78dfe144903caf38f33a2cf, type: 2}
+    blocks: []
+  - tetromino: 2
+    tile: {fileID: 11400000, guid: a2b37980da5adc0409868705f82d1501, type: 2}
+    blocks: []
+  - tetromino: 2
+    tile: {fileID: 11400000, guid: a2b37980da5adc0409868705f82d1501, type: 2}
+    blocks: []
+  - tetromino: 3
+    tile: {fileID: 11400000, guid: 0ac81a73bcc4051409b8260b4fa6bc57, type: 2}
+    blocks: []
+  - tetromino: 3
+    tile: {fileID: 11400000, guid: 0ac81a73bcc4051409b8260b4fa6bc57, type: 2}
+    blocks: []
+  - tetromino: 4
+    tile: {fileID: 11400000, guid: dcea8d0adae932b4eab3fe2c7b0c4c6f, type: 2}
+    blocks: []
+  - tetromino: 4
+    tile: {fileID: 11400000, guid: dcea8d0adae932b4eab3fe2c7b0c4c6f, type: 2}
+    blocks: []
+  - tetromino: 5
+    tile: {fileID: 11400000, guid: 444f65f136158ef4d8c765d09e9c2726, type: 2}
+    blocks: []
+  - tetromino: 5
+    tile: {fileID: 11400000, guid: 444f65f136158ef4d8c765d09e9c2726, type: 2}
+    blocks: []
+  - tetromino: 6
+    tile: {fileID: 11400000, guid: b1b53750534153f428f8ce0199ecb051, type: 2}
+    blocks: []
+  - tetromino: 6
+    tile: {fileID: 11400000, guid: b1b53750534153f428f8ce0199ecb051, type: 2}
+    blocks: []
+  tetrominoBag2:
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  - tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  currentPieceData:
+    tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  currentPiece: {fileID: 1796979380656480477}
+  holdingPiece:
+    tetromino: 0
+    tile: {fileID: 0}
+    blocks: []
+  startPosition: {x: 0, y: 10}
   tileLocation:
   - {x: 0, y: 0, z: 0}
 --- !u!1 &6576278744569137449

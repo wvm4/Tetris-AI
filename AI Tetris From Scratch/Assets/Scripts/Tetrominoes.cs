@@ -1,9 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
-public class Tetrominoes : MonoBehaviour
+public enum Tetromino
 {
-    public int colour; //colour of tetromino as index of tiles in player script
-    public Vector3Int[] blockLocations = new Vector3Int[3]; //4 blocks per tetromino
+    I,
+    O,
+    T,
+    J,
+    L,
+    S,
+    Z,
+}
+
+[System.Serializable]
+public class TetrominoData
+{
+    public Tetromino tetromino;
+    public Tile tile;
+    public Vector2Int[] blocks;
+
+    public void Initialize()
+    {
+        this.blocks = Data.Blocks[this.tetromino];
+    }
+
 }
