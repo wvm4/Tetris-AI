@@ -52,6 +52,7 @@ MonoBehaviour:
   blocks: []
   position: {x: 0, y: 0}
   rotationIndex: 0
+  player: {fileID: 2948419555404676967}
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,8 +480,6 @@ MonoBehaviour:
     tile: {fileID: 0}
     blocks: []
   startPosition: {x: 0, y: 10}
-  tileLocation:
-  - {x: 0, y: 0, z: 0}
 --- !u!1 &6576278744569137449
 GameObject:
   m_ObjectHideFlags: 0

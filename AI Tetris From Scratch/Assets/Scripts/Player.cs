@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
 
 
     //test vars
-    public Vector3Int[] tileLocation;
 
     // Start is called before the first frame update
     void Start()
