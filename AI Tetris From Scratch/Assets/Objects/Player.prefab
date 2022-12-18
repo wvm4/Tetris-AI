@@ -53,6 +53,9 @@ MonoBehaviour:
   position: {x: 0, y: 0}
   rotationIndex: 0
   player: {fileID: 2948419555404676967}
+  maxLockTime: 0
+  autoFallTime: 1
+  lastMoveTimeClass: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,15 +378,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 6576278743376284785}
-  tiles:
-  - {fileID: 11400000, guid: b6001f08bb4a20442ba54fd5de330260, type: 2}
-  - {fileID: 11400000, guid: 0ac81a73bcc4051409b8260b4fa6bc57, type: 2}
-  - {fileID: 11400000, guid: 02d92267b40cbf04b8918f1b866443d6, type: 2}
-  - {fileID: 11400000, guid: 444f65f136158ef4d8c765d09e9c2726, type: 2}
-  - {fileID: 11400000, guid: dcea8d0adae932b4eab3fe2c7b0c4c6f, type: 2}
-  - {fileID: 11400000, guid: a2b37980da5adc0409868705f82d1501, type: 2}
-  - {fileID: 11400000, guid: b1b53750534153f428f8ce0199ecb051, type: 2}
-  - {fileID: 11400000, guid: 8ad656b3f78dfe144903caf38f33a2cf, type: 2}
   tetrominoBag1:
   - tetromino: 0
     tile: {fileID: 11400000, guid: 02d92267b40cbf04b8918f1b866443d6, type: 2}
@@ -479,7 +473,13 @@ MonoBehaviour:
     tetromino: 0
     tile: {fileID: 0}
     blocks: []
-  startPosition: {x: 0, y: 10}
+  startPosition: {x: 0, y: 9}
+  bounds:
+    x: -5
+    y: 12
+    width: 9
+    height: -22
+  main: {fileID: 0}
 --- !u!1 &6576278744569137449
 GameObject:
   m_ObjectHideFlags: 0

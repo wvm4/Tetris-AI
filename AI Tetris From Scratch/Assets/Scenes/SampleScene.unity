@@ -252,3 +252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 6576278744566084758, guid: c411bd8a6456f5d4cb745f054bd912e7, type: 3}
+  player1: {fileID: 0}
+  player2: {fileID: 0}
+  maxLockTime: 0
+  autoFallTime: 0
