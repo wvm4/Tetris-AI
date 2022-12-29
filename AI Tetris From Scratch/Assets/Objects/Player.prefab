@@ -479,9 +479,9 @@ MonoBehaviour:
   startPosition: {x: 0, y: 9}
   bounds:
     x: -5
-    y: 12
+    y: 15
     width: 10
-    height: -22
+    height: -25
   main: {fileID: 0}
 --- !u!1 &6576278744569137449
 GameObject:

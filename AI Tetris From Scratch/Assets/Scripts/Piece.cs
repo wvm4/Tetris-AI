@@ -148,7 +148,9 @@ public class Piece : MonoBehaviour
 
     public void RotatePiece(Piece piece)
     {
+        //rotate tiles beforehand for hitboxes
         RotateTiles(piece, piece.nextRotation);
+        //math to find the correct row in the table of wallkicks
         int kickIndex = piece.rotationIndex * 2;
         
 
@@ -165,7 +167,7 @@ public class Piece : MonoBehaviour
             kickIndex = 0;
         }
 
-        
+        //checking all wallkick positions for a piece, if none are valid rotate piece back
         for (int i = 0; i < piece.data.wallKicks.GetLength(1); i++){
             if (IsValidLocation(piece, piece.position + piece.data.wallKicks[kickIndex, i]))
             {
@@ -176,7 +178,7 @@ public class Piece : MonoBehaviour
                 {
                     rotationIndex = 3;
                 }
-                else if (rotationIndex == 4)
+                else if (rotationIndex > 3)
                 {
                     rotationIndex = 0;
                 }
