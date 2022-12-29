@@ -56,6 +56,8 @@ MonoBehaviour:
   maxLockTime: 0
   autoFallTime: 1
   lastMoveTimeClass: 0
+  nextRotation: 0
+  nextMovement: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -478,7 +480,7 @@ MonoBehaviour:
   bounds:
     x: -5
     y: 12
-    width: 9
+    width: 10
     height: -22
   main: {fileID: 0}
 --- !u!1 &6576278744569137449
@@ -611,3 +613,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   piece: {fileID: 1796979380656480477}
   player: {fileID: 2948419555404676967}
+  rotateLeft: 113
+  rotateRight: 101

@@ -7,6 +7,8 @@ public class playerInput : MonoBehaviour
 {
     public Piece piece;
     public Player player;
+    public KeyCode rotateLeft;
+    public KeyCode rotateRight;
     private float horiInput;
     private float vertiInput;
     private float oldHoriInput;
@@ -28,11 +30,19 @@ public class playerInput : MonoBehaviour
 
         if (horiInput > 0 && oldHoriInput <= 0)
         {
-            piece.nextRotation = 1;
+            piece.nextMovement = 1;
         } else if (horiInput < 0 && oldHoriInput >= 0){
-            piece.nextRotation = 2;
+            piece.nextMovement = -1;
+        }
+
+        if (Input.GetKeyDown(rotateRight))
+        {
+            piece.nextRotation = 1;
+        } else if (Input.GetKeyDown(rotateLeft))
+        {
+            piece.nextRotation = -1;
         }
         
-        
+
     }
 }
