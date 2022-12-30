@@ -9,6 +9,9 @@ public class playerInput : MonoBehaviour
     public Player player;
     public KeyCode rotateLeft;
     public KeyCode rotateRight;
+    public int nextRotation;
+    public int nextMovement;
+    public int nextDrop;
     private float horiInput;
     private float vertiInput;
     private float oldHoriInput;
@@ -33,6 +36,11 @@ public class playerInput : MonoBehaviour
             piece.nextMovement = 1;
         } else if (horiInput < 0 && oldHoriInput >= 0){
             piece.nextMovement = -1;
+        }
+
+        if (vertiInput > 0 && oldVertiInput <= 0)
+        {
+            piece.nextDrop = 1;
         }
 
         if (Input.GetKeyDown(rotateRight))

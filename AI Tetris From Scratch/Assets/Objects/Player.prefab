@@ -50,14 +50,20 @@ MonoBehaviour:
     blocks: []
   tilemap: {fileID: 6576278743376284785}
   blocks: []
+  startPosition: {x: 0, y: 0}
   position: {x: 0, y: 0}
   rotationIndex: 0
   player: {fileID: 2948419555404676967}
-  maxLockTime: 0
-  autoFallTime: 1
-  lastMoveTimeClass: 0
+  playerInput: {fileID: 5476080348778456174}
+  maxLockTime: 4
+  lockPiece: 0
+  lockPieceTimer: 0
+  autoFallTime: 0.2
+  lastFallTime: 0
+  lastMoveTime: 0
   nextRotation: 0
   nextMovement: 0
+  nextDrop: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,16 +473,17 @@ MonoBehaviour:
   - tetromino: 0
     tile: {fileID: 0}
     blocks: []
+  pieceCounter: 0
   currentPieceData:
     tetromino: 0
     tile: {fileID: 0}
     blocks: []
-  currentPiece: {fileID: 1796979380656480477}
+  piece: {fileID: 1796979380656480477}
   holdingPiece:
     tetromino: 0
     tile: {fileID: 0}
     blocks: []
-  startPosition: {x: 0, y: 9}
+  startPosition: {x: 0, y: 6}
   bounds:
     x: -5
     y: 15
@@ -615,3 +622,6 @@ MonoBehaviour:
   player: {fileID: 2948419555404676967}
   rotateLeft: 113
   rotateRight: 101
+  nextRotation: 0
+  nextMovement: 0
+  nextDrop: 0

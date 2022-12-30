@@ -10,31 +10,62 @@ public class Piece : MonoBehaviour
     public TetrominoData data;
     public Tilemap tilemap;
     public Vector2Int[] blocks; //list of blocks of piece relative to center
+    public Vector2Int startPosition; //position at top of board to spawn piece
     public Vector2Int position;
     public int rotationIndex; //rotation as int: 0 = normal, 1 = 90 degrees right, 2 = 180 degrees. 3 = 90 degrees left
     public Player player;
-    public float maxLockTime;
-    public float autoFallTime;
-    public float lastMoveTimeClass;
+    public playerInput playerInput;
+    public float maxLockTime; //max time given before locking a falling piece in place
+    public bool lockPiece; //bool for saving when to lock piece at next autofall
+    public float lockPieceTimer; //saved time when next drop should lock piece
+    public float autoFallTime; //time between auto falls
+    public float lastFallTime; //time when piece last autofell
+    public float lastMoveTime;  //time when piece was last moved by input
     public int nextRotation; //0 = none, 1 = right, -1 = left
     public int nextMovement; //0 = none, 1 = right, -1 = left
-    float currTime;
+    public int nextDrop; //0 = none, 1 = hard drop
+    float currTime; //time saved at start of loop
+    bool active; //if class is active
     RectInt bounds;
 
 
     public void Update()
     {
-        if (data == null) //if the piece has not been initialized yet, do not execute update func
+        
+        if (!active) //if the piece has not been initialized yet, do not execute update func
         {
             return;
         }
-        currTime = Time.time;
 
         ClearPiece(this);
 
+        currTime = Time.time;
+
+
+        if (lockPiece == true)
+        {
+            //different loop when next piece drop should lock
+            UnlockPiece();
+
+            if (maxLockTime < currTime - lockPieceTimer)
+            {
+                PlacePiece();
+            }
+            
+        }
+
+        //normal game loop
+
+        if (nextDrop != 0)
+        {
+            HardDropPiece();
+            nextDrop = 0;
+            nextRotation = 0;
+            nextMovement = 0;
+        }
+
         if (nextRotation != 0)
         {
-            lastMoveTimeClass = Time.time;
             RotatePiece(this);
             nextRotation = 0;
             nextMovement = 0;
@@ -42,50 +73,67 @@ public class Piece : MonoBehaviour
 
         if (nextMovement != 0)
         {
-            lastMoveTimeClass = Time.time;
             MovePiece(this);
             nextMovement = 0;
         }
 
-        if (PieceAutoFallTimer(this))
+        if (PieceAutoFallTimer(this) && !lockPiece)
         {
-            lastMoveTimeClass = Time.time;
-            if (IsValidLocation(this, position + Vector2Int.down))
-            {
-                MovePieceDown(this);
-            }
+            lastFallTime = Time.time;
+            MovePieceDown(this);
 
         }
-        
-        
+
+        if (!lockPiece)
+        {
+            LockPiece();
+        }
+
 
         SetPiece(this);
 
     }
 
-    public void LoadPiece(TetrominoData tetrominoData, Vector2Int _position)
+    public void LoadFirstPiece(TetrominoData tetrominoData, Vector2Int _position)
     {
         //Initialize class
         data = tetrominoData;
         blocks = data.blocks;
-        position = _position;
+        startPosition = _position;
+        position = startPosition;
         bounds = player.bounds;
+        lastMoveTime = Time.time;
         rotationIndex = 0;
-        lastMoveTimeClass = Time.time;
         SetPiece(this);
-        
+        active = true;
+
+    }
+
+    public void LoadNextPiece(TetrominoData tetrominoData)
+    {
+        data = tetrominoData;
+        blocks = data.blocks;
+        position = startPosition;
+        rotationIndex = 0;
+        if (!IsValidLocation(this, startPosition))
+        {
+            StopClass();
+            return;
+        }
+        lastMoveTime = Time.time;
+        active = true;
     }
 
     public void StopClass()
     {
         //stop class from executing update func by setting data to null
-        data = null;
+        active = false;
     }
 
-    public void ResumeClass(TetrominoData tetrominoData)
+    public void ResumeClass()
     {
         //resume class, inverse of stopclass func
-        data = tetrominoData;
+        active = true;
     }
 
     public void SetPiece(Piece piece)
@@ -112,8 +160,35 @@ public class Piece : MonoBehaviour
         }
     }
 
+    public void LockPiece()
+    {
+        if (!IsValidLocation(this, position + Vector2Int.down))
+        {
+            lockPiece = true;
+            lockPieceTimer = currTime;
+        }
+    }
 
-    
+    public void PlacePiece()
+    {
+        //locking piece, clearing lines and loading next piece
+        SetPiece(this);
+        //clear lines
+        data = null;
+        active = false;
+        player.NextPiece(); //shuffles bags, loads next piece into piece class
+        return;
+    }
+
+    public void UnlockPiece()
+    {
+        if (IsValidLocation(this, position + Vector2Int.down))
+        {
+            lockPiece = false;
+        }
+    }
+
+
     public void RotateTiles(Piece piece, int direction)
     {
         float[] matrix = Data.RotationMatrix;
@@ -174,11 +249,11 @@ public class Piece : MonoBehaviour
                 piece.position += piece.data.wallKicks[kickIndex, i];
                 piece.rotationIndex += piece.nextRotation;
 
-                if (rotationIndex < 0)
+                if (rotationIndex == -1)
                 {
                     rotationIndex = 3;
                 }
-                else if (rotationIndex > 3)
+                else if (rotationIndex == 4)
                 {
                     rotationIndex = 0;
                 }
@@ -196,6 +271,20 @@ public class Piece : MonoBehaviour
         if (IsValidLocation(piece, piece.position + direction)) 
         {
             piece.position += direction;
+        }
+    }
+
+    public void HardDropPiece()
+    {
+        //check places below cvurrent location until invalid, set to previous position and fully place piece
+        for (int i = 0; i < 24; i++)
+        {
+            if (!IsValidLocation(this, position + i * Vector2Int.down))
+            {
+                position += (i - 1) * Vector2Int.down;
+                PlacePiece();
+                return;
+            }
         }
     }
 
@@ -224,7 +313,6 @@ public class Piece : MonoBehaviour
         //check if all blocks are within bounds
         if (!bounds.Contains(tilePosition))
         {
-            print(tilePosition + "out of bounds, " + "bounds: " + bounds);
             return false;
         }
         return true;
@@ -235,7 +323,6 @@ public class Piece : MonoBehaviour
         //check if space is not already occupied by tile
         if (tilemap.HasTile((Vector3Int)tilePosition))
         {
-            print("tile occupied");
             return false;
         }
         return true;
@@ -244,18 +331,20 @@ public class Piece : MonoBehaviour
     public bool PieceAutoFallTimer(Piece piece)
     {
         //check if piece should auto fall (true = should autofall)
-        float lastMoveTime = piece.lastMoveTimeClass;
+        float lastFallTime = piece.lastFallTime;
 
-        if (currTime - lastMoveTime > autoFallTime){
+        if (currTime - lastFallTime > autoFallTime){
             return true;
         }
         return false;
     }
 
+
+
     public bool PieceLockTimer(Piece piece)
     {
         //check if piece should lock movement (true = should lock piece)
-        float lastMoveTime = piece.lastMoveTimeClass;
+        float lastMoveTime = piece.lastMoveTime;
 
         if (currTime - lastMoveTime > maxLockTime)
         {
