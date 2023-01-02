@@ -52,13 +52,14 @@ MonoBehaviour:
   blocks: []
   startPosition: {x: 0, y: 0}
   position: {x: 0, y: 0}
+  fieldOffset: {x: 0, y: 0}
   rotationIndex: 0
   player: {fileID: 2948419555404676967}
   playerInput: {fileID: 5476080348778456174}
   maxLockTime: 4
   lockPiece: 0
   lockPieceTimer: 0
-  autoFallTime: 0.2
+  autoFallTime: 0.5
   lastFallTime: 0
   lastMoveTime: 0
   nextRotation: 0
@@ -387,6 +388,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 6576278743376284785}
+  fieldSize: {x: 10, y: 25}
+  fieldOffset: {x: -5, y: -10}
   tetrominoBag1:
   - tetromino: 0
     tile: {fileID: 11400000, guid: 02d92267b40cbf04b8918f1b866443d6, type: 2}
@@ -483,7 +486,7 @@ MonoBehaviour:
     tetromino: 0
     tile: {fileID: 0}
     blocks: []
-  startPosition: {x: 0, y: 6}
+  startPosition: {x: 0, y: 9}
   bounds:
     x: -5
     y: 15

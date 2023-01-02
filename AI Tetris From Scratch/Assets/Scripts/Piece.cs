@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
@@ -12,6 +13,7 @@ public class Piece : MonoBehaviour
     public Vector2Int[] blocks; //list of blocks of piece relative to center
     public Vector2Int startPosition; //position at top of board to spawn piece
     public Vector2Int position;
+    public Vector2Int fieldOffset; //offset from center of tilemap to bottom left of field (tilemap:(fieldOffset) = field[0,0]
     public int rotationIndex; //rotation as int: 0 = normal, 1 = 90 degrees right, 2 = 180 degrees. 3 = 90 degrees left
     public Player player;
     public playerInput playerInput;
@@ -31,11 +33,12 @@ public class Piece : MonoBehaviour
 
     public void Update()
     {
-        
+
         if (!active) //if the piece has not been initialized yet, do not execute update func
         {
             return;
         }
+
 
         ClearPiece(this);
 
@@ -49,11 +52,13 @@ public class Piece : MonoBehaviour
 
             if (maxLockTime < currTime - lockPieceTimer)
             {
+                StopClass();
                 PlacePiece();
+                return;
             }
             
         }
-
+        
         //normal game loop
 
         if (nextDrop != 0)
@@ -104,8 +109,8 @@ public class Piece : MonoBehaviour
         bounds = player.bounds;
         lastMoveTime = Time.time;
         rotationIndex = 0;
-        SetPiece(this);
-        active = true;
+        fieldOffset= player.fieldOffset;
+        ResumeClass();
 
     }
 
@@ -121,7 +126,7 @@ public class Piece : MonoBehaviour
             return;
         }
         lastMoveTime = Time.time;
-        active = true;
+        ResumeClass();
     }
 
     public void StopClass()
@@ -145,6 +150,15 @@ public class Piece : MonoBehaviour
         {
             Vector3Int blockPosition = new Vector3Int(block.x + tilePositions.x, block.y + tilePositions.y, 0);
             tilemap.SetTile(blockPosition, piece.data.tile);
+
+            try
+            {
+                player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 1;
+            }
+            catch (Exception e)
+            {
+                print(e.ToString());
+            }
         }
     }
 
@@ -157,6 +171,15 @@ public class Piece : MonoBehaviour
         {
             Vector3Int blockPosition = new Vector3Int(block.x + tilePositions.x, block.y + tilePositions.y, 0);
             tilemap.SetTile(blockPosition, null);
+
+            try
+            {
+                player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 0;
+            }
+            catch (Exception e)
+            {
+                print(e.ToString());
+            }
         }
     }
 
@@ -173,11 +196,10 @@ public class Piece : MonoBehaviour
     {
         //locking piece, clearing lines and loading next piece
         SetPiece(this);
-        //clear lines
+        player.CheckForClearedLines();
         data = null;
-        active = false;
+        lockPiece = false;
         player.NextPiece(); //shuffles bags, loads next piece into piece class
-        return;
     }
 
     public void UnlockPiece()

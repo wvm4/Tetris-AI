@@ -15,10 +15,10 @@ public class Main : MonoBehaviour
     {
         //GameObject gameObject = Instantiate() to save reference to player
         player1 = Instantiate(player, new Vector3(8,0,0), Quaternion.identity).GetComponent<Player>();
-        player2 = Instantiate(player, new Vector3(-8,0,0), Quaternion.identity).GetComponent<Player>();
+        //player2 = Instantiate(player, new Vector3(-8,0,0), Quaternion.identity).GetComponent<Player>();
 
         player1.main = this;
-        player2.main = this;
+        //player2.main = this;
 
     }
 
