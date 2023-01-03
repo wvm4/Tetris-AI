@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using Unity.VisualScripting;
 using Unity.Mathematics;
+using JetBrains.Annotations;
 
 public class Player : MonoBehaviour
 {
@@ -18,7 +19,8 @@ public class Player : MonoBehaviour
     public TetrominoData[] tetrominoBag1; //first bag of tetrominoes
     public TetrominoData[] tetrominoBag2; //second bag
     public int pieceCounter; //counts how many pieces have been dropped from first bag, max 7
-    public TetrominoData currentPieceData;
+    //public TetrominoData currentPieceData;
+    public bool pieceBeingHeld; 
     public Piece piece;
     public TetrominoData holdingPiece; //piece being held
     public Vector2Int startPosition;
@@ -38,6 +40,8 @@ public class Player : MonoBehaviour
             tetrominoBag1[i].Initialize();
         }
 
+        pieceBeingHeld = false;
+
         //copying tetromino amounts to bag 2
         tetrominoBag2 = tetrominoBag1;
 
@@ -47,7 +51,15 @@ public class Player : MonoBehaviour
 
         tetrominoBag1 = tetrominoBag1.OrderBy(c => rnd1.Next()).ToArray();
         tetrominoBag2 = tetrominoBag2.OrderBy(c => rnd1.Next()).ToArray();
-        currentPieceData = tetrominoBag1[0];
+        TetrominoData currentPieceData = tetrominoBag1[0];
+
+        //display pieces in queue
+        for (int i = 0; i < 4; i++)
+        {
+            ClearDisplayPiece(i + 1);
+            DisplayPiece(tetrominoBag1[i], i + 1);
+        }
+
         piece.LoadFirstPiece(currentPieceData, startPosition);
         pieceCounter = 1;
     }
@@ -71,16 +83,6 @@ public class Player : MonoBehaviour
             }
         }
 
-        //print lines that should be cleared (for testing)
-
-        //for (int i = 0; i < linesToClear.Length; i++)
-        //{
-        //    if (linesToClear[i])
-        //    {
-        //        print(linesToClear[i].ToString() + " " + i.ToString());
-
-        //    }
-        //}
 
         ClearLines(linesToClear);
     }
@@ -107,17 +109,119 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void HoldPiece()
+    {
+        if (!pieceBeingHeld)
+        {
+            pieceBeingHeld = true;
+            holdingPiece = tetrominoBag1[0];
+            NextPiece();
+            DisplayPiece(holdingPiece, 0);
+            return;
+        }
+        ClearDisplayPiece(0);
+        TetrominoData tempPiece = tetrominoBag1[0];
+        tetrominoBag1[0] = holdingPiece;
+        TetrominoData currentPieceData = tetrominoBag1[0];
+        holdingPiece = tempPiece;
+        piece.LoadNextPiece(currentPieceData);
+        DisplayPiece(holdingPiece, 0);
+
+    }
+
+    //display a piece on the screen: 0 = holding piece, 1,2,3,4 = nextpieces
+    public void DisplayPiece(TetrominoData piece, int queuePos)
+    {
+        Vector3Int displayPosition;
+
+        switch(queuePos)
+        {
+            case 0:
+                displayPosition = new Vector3Int(-10, 10, 0);
+                break; 
+            case 1:
+                displayPosition = new Vector3Int(8, 10, 0);
+                break;
+            case 2:
+                displayPosition = new Vector3Int(8, 7, 0);
+                break;
+            case 3:
+                displayPosition = new Vector3Int(8, 4, 0);
+                break;
+            case 4:
+                displayPosition = new Vector3Int(8, 1, 0);
+                break;
+            default:
+                return;
+        }
+
+
+        //set all tiles on the tilemap containing the piece to correct color tile
+        foreach (Vector2Int block in piece.blocks)
+        {
+            Vector3Int blockPosition = new Vector3Int(block.x + displayPosition.x, block.y + displayPosition.y, 0);
+            tilemap.SetTile(blockPosition, piece.tile);
+
+            
+        }
+    }
+
+    //clear piece displayed
+    public void ClearDisplayPiece(int queuePos)
+    {
+        Vector3Int displayPosition;
+
+        switch (queuePos)
+        {
+            case 0:
+                displayPosition = new Vector3Int(-10, 10, 0);
+                break;
+            case 1:
+                displayPosition = new Vector3Int(10, 10, 0);
+                break;
+            case 2:
+                displayPosition = new Vector3Int(10, 7, 0);
+                break;
+            case 3:
+                displayPosition = new Vector3Int(10, 4, 0);
+                break;
+            case 4:
+                displayPosition = new Vector3Int(10, 1, 0);
+                break;
+            default:
+                return;
+        }
+
+        displayPosition += new Vector3Int(-3, -3, 0);
+        //set all tiles on the tilemap containing the piece to correct color tile
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {
+
+                tilemap.SetTile(new Vector3Int(displayPosition.x + i, displayPosition.y + j, 0), null);
+            }
+        }
+    }
+
     //piece queue, shifting/shuffling piece bags
     public void NextPiece()
     {
         //count dropped pieces
         pieceCounter++;
+
         //shift primary bag
         tetrominoBag1 = ShiftTetrominoBag(tetrominoBag1);
         //set current piece to first piece from bag
-        currentPieceData = tetrominoBag1[0];
-
+        TetrominoData currentPieceData = tetrominoBag1[0];
         piece.LoadNextPiece(currentPieceData);
+
+        //display pieces in queue
+        for (int i = 0; i < 4; i++)
+        {
+            ClearDisplayPiece(i + 1);
+            DisplayPiece(tetrominoBag1[i], i + 1);
+        }
 
         if (pieceCounter == 7)
         {

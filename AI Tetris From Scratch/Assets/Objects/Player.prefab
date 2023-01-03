@@ -65,6 +65,7 @@ MonoBehaviour:
   nextRotation: 0
   nextMovement: 0
   nextDrop: 0
+  nextHold: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -481,17 +482,18 @@ MonoBehaviour:
     tetromino: 0
     tile: {fileID: 0}
     blocks: []
+  pieceBeingHeld: 0
   piece: {fileID: 1796979380656480477}
   holdingPiece:
     tetromino: 0
     tile: {fileID: 0}
     blocks: []
-  startPosition: {x: 0, y: 9}
+  startPosition: {x: 0, y: 12}
   bounds:
     x: -5
-    y: 15
+    y: 16
     width: 10
-    height: -25
+    height: -26
   main: {fileID: 0}
 --- !u!1 &6576278744569137449
 GameObject:

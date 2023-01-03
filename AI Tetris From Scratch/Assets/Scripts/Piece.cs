@@ -26,6 +26,7 @@ public class Piece : MonoBehaviour
     public int nextRotation; //0 = none, 1 = right, -1 = left
     public int nextMovement; //0 = none, 1 = right, -1 = left
     public int nextDrop; //0 = none, 1 = hard drop
+    public int nextHold; //0 = none, 1 = hold piece
     float currTime; //time saved at start of loop
     bool active; //if class is active
     RectInt bounds;
@@ -60,6 +61,16 @@ public class Piece : MonoBehaviour
         }
         
         //normal game loop
+        if (nextHold == 1)
+        {
+            StopClass();
+            player.HoldPiece();
+            nextHold = 0;
+            nextDrop = 0;
+            nextRotation = 0;
+            nextMovement = 0;
+            ResumeClass();
+        }
 
         if (nextDrop != 0)
         {
@@ -197,7 +208,6 @@ public class Piece : MonoBehaviour
         //locking piece, clearing lines and loading next piece
         SetPiece(this);
         player.CheckForClearedLines();
-        data = null;
         lockPiece = false;
         player.NextPiece(); //shuffles bags, loads next piece into piece class
     }
@@ -247,6 +257,8 @@ public class Piece : MonoBehaviour
     {
         //rotate tiles beforehand for hitboxes
         RotateTiles(piece, piece.nextRotation);
+
+
         //math to find the correct row in the table of wallkicks
         int kickIndex = piece.rotationIndex * 2;
         
@@ -309,6 +321,7 @@ public class Piece : MonoBehaviour
             }
         }
     }
+
 
     public bool IsValidLocation(Piece piece, Vector2Int checkPosition)
     {

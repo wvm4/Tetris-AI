@@ -40,6 +40,9 @@ public class playerInput : MonoBehaviour
 
         if (vertiInput > 0 && oldVertiInput <= 0)
         {
+            piece.nextHold = 1;
+        } else if (vertiInput < 0 && oldVertiInput >= 0)
+        {
             piece.nextDrop = 1;
         }
 

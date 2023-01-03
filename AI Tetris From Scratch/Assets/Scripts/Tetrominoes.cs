@@ -15,7 +15,7 @@ public enum Tetromino
 }
 
 [System.Serializable]
-public class TetrominoData
+public struct TetrominoData
 {
     public Tetromino tetromino;
     public Tile tile;
@@ -27,5 +27,6 @@ public class TetrominoData
         this.blocks = Data.Blocks[this.tetromino];
         this.wallKicks = Data.WallKicks[this.tetromino];
     }
+
 
 }
