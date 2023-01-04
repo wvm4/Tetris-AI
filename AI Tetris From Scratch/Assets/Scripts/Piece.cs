@@ -10,7 +10,7 @@ public class Piece : MonoBehaviour
 {
     public TetrominoData data;
     public Tilemap tilemap;
-    public Vector2Int[] blocks; //list of blocks of piece relative to center
+    public Vector2Int[] blocks { get; private set; } //list of blocks of piece relative to center
     public Vector2Int startPosition; //position at top of board to spawn piece
     public Vector2Int position;
     public Vector2Int fieldOffset; //offset from center of tilemap to bottom left of field (tilemap:(fieldOffset) = field[0,0]
@@ -27,6 +27,7 @@ public class Piece : MonoBehaviour
     public int nextMovement; //0 = none, 1 = right, -1 = left
     public int nextDrop; //0 = none, 1 = hard drop
     public int nextHold; //0 = none, 1 = hold piece
+    public bool previousHold; //0 = not this piece, 1 = yes this piece. locks hold until piece placed
     float currTime; //time saved at start of loop
     bool active; //if class is active
     RectInt bounds;
@@ -61,10 +62,11 @@ public class Piece : MonoBehaviour
         }
         
         //normal game loop
-        if (nextHold == 1)
+        if (nextHold == 1 && !previousHold)
         {
             StopClass();
             player.HoldPiece();
+            previousHold = true;
             nextHold = 0;
             nextDrop = 0;
             nextRotation = 0;
@@ -114,9 +116,13 @@ public class Piece : MonoBehaviour
     {
         //Initialize class
         data = tetrominoData;
-        blocks = data.blocks;
+        blocks = new Vector2Int[data.blocks.Length];
+        for (int i = 0; i < blocks.Length; i++)
+        {
+            blocks[i] = (Vector2Int)data.blocks[i];
+        }
         startPosition = _position;
-        position = startPosition;
+        position = startPosition + data.startPositionOffset;
         bounds = player.bounds;
         lastMoveTime = Time.time;
         rotationIndex = 0;
@@ -128,14 +134,17 @@ public class Piece : MonoBehaviour
     public void LoadNextPiece(TetrominoData tetrominoData)
     {
         data = tetrominoData;
-        blocks = data.blocks;
-        position = startPosition;
+        for (int i = 0; i < blocks.Length; i++)
+        {
+            blocks[i] = (Vector2Int)data.blocks[i];
+        }
         rotationIndex = 0;
         if (!IsValidLocation(this, startPosition))
         {
             StopClass();
             return;
         }
+        position = startPosition + data.startPositionOffset;
         lastMoveTime = Time.time;
         ResumeClass();
     }
@@ -208,7 +217,10 @@ public class Piece : MonoBehaviour
         //locking piece, clearing lines and loading next piece
         SetPiece(this);
         player.CheckForClearedLines();
+        //resetting values
         lockPiece = false;
+        previousHold = false;
+        nextHold = 0;
         player.NextPiece(); //shuffles bags, loads next piece into piece class
     }
 

@@ -13,11 +13,12 @@ public class Player : MonoBehaviour
     //script runs in prefab
 
     public Tilemap tilemap;
-    public int[,] field; //playing field as intsd (bool) for ai input
+    public int[,] field; //playing field as ints (bool) for ai input
     public Vector2Int fieldSize; //x and y size of field
     public Vector2Int fieldOffset; //offset from tilemap to field var
     public TetrominoData[] tetrominoBag1; //first bag of tetrominoes
     public TetrominoData[] tetrominoBag2; //second bag
+    public TetrominoData currentPieceData; //current piece
     public int pieceCounter; //counts how many pieces have been dropped from first bag, max 7
     //public TetrominoData currentPieceData;
     public bool pieceBeingHeld; 
@@ -26,6 +27,8 @@ public class Player : MonoBehaviour
     public Vector2Int startPosition;
     public RectInt bounds;
     public Main main;
+
+    public Vector2Int[] data;
 
 
 
@@ -143,13 +146,13 @@ public class Player : MonoBehaviour
                 displayPosition = new Vector3Int(8, 10, 0);
                 break;
             case 2:
-                displayPosition = new Vector3Int(8, 7, 0);
+                displayPosition = new Vector3Int(8, 6, 0);
                 break;
             case 3:
-                displayPosition = new Vector3Int(8, 4, 0);
+                displayPosition = new Vector3Int(8, 2, 0);
                 break;
             case 4:
-                displayPosition = new Vector3Int(8, 1, 0);
+                displayPosition = new Vector3Int(8, -2, 0);
                 break;
             default:
                 return;
@@ -180,13 +183,13 @@ public class Player : MonoBehaviour
                 displayPosition = new Vector3Int(10, 10, 0);
                 break;
             case 2:
-                displayPosition = new Vector3Int(10, 7, 0);
+                displayPosition = new Vector3Int(10, 6, 0);
                 break;
             case 3:
-                displayPosition = new Vector3Int(10, 4, 0);
+                displayPosition = new Vector3Int(10, 2, 0);
                 break;
             case 4:
-                displayPosition = new Vector3Int(10, 1, 0);
+                displayPosition = new Vector3Int(10, -2, 0);
                 break;
             default:
                 return;
@@ -213,17 +216,17 @@ public class Player : MonoBehaviour
         //shift primary bag
         tetrominoBag1 = ShiftTetrominoBag(tetrominoBag1);
         //set current piece to first piece from bag
-        TetrominoData currentPieceData = tetrominoBag1[0];
+        currentPieceData = tetrominoBag1[0];
         piece.LoadNextPiece(currentPieceData);
 
         //display pieces in queue
-        for (int i = 0; i < 4; i++)
+        for (int i = 1; i < 5; i++)
         {
-            ClearDisplayPiece(i + 1);
-            DisplayPiece(tetrominoBag1[i], i + 1);
+            ClearDisplayPiece(i);
+            DisplayPiece(tetrominoBag1[i], i);
         }
 
-        if (pieceCounter == 7)
+        if (pieceCounter == tetrominoBag1.Length)
         {
             //switch bags and shuffle bag2
             TetrominoData[] tempBag = tetrominoBag1;
@@ -233,6 +236,14 @@ public class Player : MonoBehaviour
             pieceCounter = 0;
         }
 
+        //testing field var
+        //for (int i = 0; i < field.GetLength(1); i++)
+        //{
+        //    for (int j = 0; j < field.GetLength(0); j++)
+        //    {
+        //        print("x: " + j + ", y: " + i + " = " + field[j, i]);
+        //    }
+        //}
 
     }
 
@@ -264,6 +275,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
 
     }
 }
