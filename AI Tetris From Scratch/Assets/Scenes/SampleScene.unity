@@ -256,3 +256,8 @@ MonoBehaviour:
   player2: {fileID: 0}
   maxLockTime: 0
   autoFallTime: 0
+  timeStarted: 0
+  timeMultiplier: 0
+  speedMultiplier: 15
+  flattenMultiplier: 5
+  garbageTile: {fileID: 11400000, guid: 4bdd9a0759e89604db1d5171ec4f4df7, type: 2}

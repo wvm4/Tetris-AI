@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
 
     public Tilemap tilemap;
     public int[,] field; //playing field as ints (bool) for ai input
+    public int highestPieceHeight; //highest piece of tetris tower, input for ai to know opponent board state
     public Vector2Int fieldSize; //x and y size of field
     public Vector2Int fieldOffset; //offset from tilemap to field var
     public TetrominoData[] tetrominoBag1; //first bag of tetrominoes
@@ -27,6 +28,10 @@ public class Player : MonoBehaviour
     public Vector2Int startPosition;
     public RectInt bounds;
     public Main main;
+    public Player opponent;
+    public int garbageRowsToAdd;
+    public bool lastClearWasTetris; 
+
 
     public Vector2Int[] data;
 
@@ -53,7 +58,7 @@ public class Player : MonoBehaviour
         System.Random rnd2 = new System.Random();
 
         tetrominoBag1 = tetrominoBag1.OrderBy(c => rnd1.Next()).ToArray();
-        tetrominoBag2 = tetrominoBag2.OrderBy(c => rnd1.Next()).ToArray();
+        tetrominoBag2 = tetrominoBag2.OrderBy(c => rnd2.Next()).ToArray();
         TetrominoData currentPieceData = tetrominoBag1[0];
 
         //display pieces in queue
@@ -94,12 +99,16 @@ public class Player : MonoBehaviour
     {
         int linesCleared = 0;
 
-        for (int i = 0; i < lines.Length; i++)
+
+
+        for (int i = 0; i < fieldSize.y; i++)
         {
+
             for (int j = 0; j < fieldSize.x; j++)
             {
                 Vector3Int position = new Vector3Int(j + fieldOffset.x, i + fieldOffset.y, 0);
                 TileBase tileColor = tilemap.GetTile(position);
+
 
                 tilemap.SetTile(position, null);
                 tilemap.SetTile(position + linesCleared * Vector3Int.down, tileColor);
@@ -109,7 +118,102 @@ public class Player : MonoBehaviour
             {
                 linesCleared++;
             } 
+
         }
+        SetFieldVar();
+
+
+        switch(linesCleared)
+        {
+            case 0:
+                opponent.garbageRowsToAdd += 0;
+                lastClearWasTetris = false;
+                break;
+            case 1:
+                opponent.garbageRowsToAdd += 0;
+                lastClearWasTetris = false;
+                break;
+            case 2:
+                opponent.garbageRowsToAdd += 1;
+                lastClearWasTetris = false;
+                break;
+            case 3:
+                opponent.garbageRowsToAdd += 2;
+                lastClearWasTetris = false;
+                break;
+            case 4:
+                if (lastClearWasTetris)
+                {
+                    opponent.garbageRowsToAdd += 6;
+                }
+                opponent.garbageRowsToAdd += 4;
+                lastClearWasTetris = true;
+                break;
+        }
+    }
+
+    public void SetFieldVar()
+    {
+        for (int i = 0; i < fieldSize.y; i++)
+        {
+            for (int j = 0; j < fieldSize.x; j++)
+            {
+                Vector3Int position = new Vector3Int(j + fieldOffset.x, i + fieldOffset.y, 0);
+                if (tilemap.HasTile(position))
+                {
+                    field[j, i] = 1;
+                }
+                else
+                {
+                    field[j, i] = 0;
+                }
+            }
+
+        }
+    }
+
+    public void ReceiveGarbage()
+    {
+        int rows = garbageRowsToAdd;
+
+        //move tiles up
+        for (int i = 0; i < fieldSize.y + 1; i++)
+        {
+            for (int j = 0; j < fieldSize.x + 1; j++)
+            {
+                Vector3Int position = new Vector3Int(j + fieldOffset.x, fieldSize.y - i + fieldOffset.y, 0);
+
+                if (tilemap.HasTile(position))
+                {
+                    TileBase tile = tilemap.GetTile(position);
+
+                    tilemap.SetTile(position, null);
+                    tilemap.SetTile(position + new Vector3Int(0, rows, 0), tile);
+                }
+            }
+
+        }
+
+        //fill bottom rows with garbage
+        System.Random rand = new System.Random();
+
+        for (int i = 0; i < rows; i++)
+        {
+            int column = rand.Next(0, 9);
+
+            for (int j = 0; j < fieldSize.x; j++)
+            {
+                Vector3Int position = new Vector3Int(j + fieldOffset.x, i + fieldOffset.y, 0);
+
+                if (j != column)
+                {
+                    tilemap.SetTile(position, main.garbageTile);
+                }
+            }
+
+        }
+
+        SetFieldVar();
     }
 
     public void HoldPiece()
@@ -143,16 +247,16 @@ public class Player : MonoBehaviour
                 displayPosition = new Vector3Int(-10, 10, 0);
                 break; 
             case 1:
-                displayPosition = new Vector3Int(8, 10, 0);
+                displayPosition = new Vector3Int(7, 10, 0);
                 break;
             case 2:
-                displayPosition = new Vector3Int(8, 6, 0);
+                displayPosition = new Vector3Int(7, 6, 0);
                 break;
             case 3:
-                displayPosition = new Vector3Int(8, 2, 0);
+                displayPosition = new Vector3Int(7, 2, 0);
                 break;
             case 4:
-                displayPosition = new Vector3Int(8, -2, 0);
+                displayPosition = new Vector3Int(7, -2, 0);
                 break;
             default:
                 return;
@@ -180,22 +284,22 @@ public class Player : MonoBehaviour
                 displayPosition = new Vector3Int(-10, 10, 0);
                 break;
             case 1:
-                displayPosition = new Vector3Int(10, 10, 0);
+                displayPosition = new Vector3Int(7, 10, 0);
                 break;
             case 2:
-                displayPosition = new Vector3Int(10, 6, 0);
+                displayPosition = new Vector3Int(7, 6, 0);
                 break;
             case 3:
-                displayPosition = new Vector3Int(10, 2, 0);
+                displayPosition = new Vector3Int(7, 2, 0);
                 break;
             case 4:
-                displayPosition = new Vector3Int(10, -2, 0);
+                displayPosition = new Vector3Int(7, -2, 0);
                 break;
             default:
                 return;
         }
 
-        displayPosition += new Vector3Int(-3, -3, 0);
+        displayPosition += new Vector3Int(-2, -2, 0);
         //set all tiles on the tilemap containing the piece to correct color tile
         for (int i = 0; i < 6; i++)
         {
@@ -244,6 +348,40 @@ public class Player : MonoBehaviour
         //        print("x: " + j + ", y: " + i + " = " + field[j, i]);
         //    }
         //}
+
+    }
+
+    public void CheckGameOver()
+    {
+        for (int i = 0; i < field.GetLength(1); i++)
+        {
+            bool blocksThisRow = false;
+
+            for (int j = 0; j < field.GetLength(0); j++)
+            {
+                if (field[j, i] == 1)
+                {
+                    blocksThisRow = true;
+                }
+            }
+
+            if (!blocksThisRow)
+            {
+                highestPieceHeight = i - 1;
+                break;
+            }
+        }
+
+
+        if (highestPieceHeight > 19)
+        {
+            GameOver();
+        }
+    }
+
+    public void GameOver()
+    {
+        piece.gameOver = true;
 
     }
 

@@ -208,8 +208,11 @@ MonoBehaviour:
   nextRotation: 0
   nextMovement: 0
   nextDrop: 0
+  softDropping: 0
+  softDropMultiplier: 7
   nextHold: 0
   previousHold: 0
+  gameOver: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -535,6 +538,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 6576278743376284785}
+  highestPieceHeight: 0
   fieldSize: {x: 10, y: 25}
   fieldOffset: {x: -5, y: -10}
   tetrominoBag1:
@@ -774,6 +778,7 @@ MonoBehaviour:
   player: {fileID: 2948419555404676967}
   rotateLeft: 113
   rotateRight: 101
+  holdPiece: 114
   nextRotation: 0
   nextMovement: 0
   nextDrop: 0

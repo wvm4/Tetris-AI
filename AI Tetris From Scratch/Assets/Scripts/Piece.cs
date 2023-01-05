@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
@@ -17,26 +18,33 @@ public class Piece : MonoBehaviour
     public int rotationIndex; //rotation as int: 0 = normal, 1 = 90 degrees right, 2 = 180 degrees. 3 = 90 degrees left
     public Player player;
     public playerInput playerInput;
+
     public float maxLockTime; //max time given before locking a falling piece in place
     public bool lockPiece; //bool for saving when to lock piece at next autofall
     public float lockPieceTimer; //saved time when next drop should lock piece
     public float autoFallTime; //time between auto falls
     public float lastFallTime; //time when piece last autofell
     public float lastMoveTime;  //time when piece was last moved by input
+    public float timeMultiplier;
+
     public int nextRotation; //0 = none, 1 = right, -1 = left
     public int nextMovement; //0 = none, 1 = right, -1 = left
-    public int nextDrop; //0 = none, 1 = hard drop
+    public int nextDrop; //0 = none, 1 = hard drop, -1 = soft drop
+    public bool softDropping; //if piece is being soft dropped
+    public float softDropMultiplier; 
     public int nextHold; //0 = none, 1 = hold piece
     public bool previousHold; //0 = not this piece, 1 = yes this piece. locks hold until piece placed
     float currTime; //time saved at start of loop
+
     bool active; //if class is active
+    public bool gameOver; //if current game should be stopped
     RectInt bounds;
 
 
     public void Update()
     {
 
-        if (!active) //if the piece has not been initialized yet, do not execute update func
+        if (!active || gameOver) //if the piece has not been initialized yet, do not execute update func
         {
             return;
         }
@@ -45,6 +53,8 @@ public class Piece : MonoBehaviour
         ClearPiece(this);
 
         currTime = Time.time;
+
+        UpdateFallSpeed();
 
 
         if (lockPiece == true)
@@ -74,12 +84,22 @@ public class Piece : MonoBehaviour
             ResumeClass();
         }
 
-        if (nextDrop != 0)
+        if (nextDrop == 1)
         {
             HardDropPiece();
             nextDrop = 0;
             nextRotation = 0;
             nextMovement = 0;
+        }
+
+        if (nextDrop == -1 && softDropping == false)
+        {
+            softDropping = true;
+        }
+
+        if (nextDrop == 0 && softDropping == true)
+        {
+            softDropping = false;
         }
 
         if (nextRotation != 0)
@@ -139,12 +159,14 @@ public class Piece : MonoBehaviour
             blocks[i] = (Vector2Int)data.blocks[i];
         }
         rotationIndex = 0;
-        if (!IsValidLocation(this, startPosition))
+
+        Vector2Int startOffset = new Vector2Int(0, 0);
+        while (!IsValidLocation(this, startPosition + startOffset))
         {
-            StopClass();
-            return;
+            startOffset += new Vector2Int(0, 1);
         }
-        position = startPosition + data.startPositionOffset;
+
+        position = startPosition + startOffset;
         lastMoveTime = Time.time;
         ResumeClass();
     }
@@ -217,10 +239,13 @@ public class Piece : MonoBehaviour
         //locking piece, clearing lines and loading next piece
         SetPiece(this);
         player.CheckForClearedLines();
+        player.CheckGameOver();
         //resetting values
         lockPiece = false;
         previousHold = false;
         nextHold = 0;
+        player.ReceiveGarbage();
+        player.garbageRowsToAdd = 0;
         player.NextPiece(); //shuffles bags, loads next piece into piece class
     }
 
@@ -331,6 +356,19 @@ public class Piece : MonoBehaviour
                 PlacePiece();
                 return;
             }
+        }
+    }
+
+    public void UpdateFallSpeed()
+    {
+        if (softDropping)
+        {
+            autoFallTime = timeMultiplier / softDropMultiplier;
+            maxLockTime = (timeMultiplier / softDropMultiplier) * 8;
+        } else
+        {
+            autoFallTime = timeMultiplier;
+            maxLockTime = timeMultiplier * 8;
         }
     }
 
