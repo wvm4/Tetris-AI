@@ -18,10 +18,13 @@ public class Ghost : MonoBehaviour
 
     private void LateUpdate()
     {
-        Clear();
-        Copy();
-        Drop();
-        Set();
+        if (trackingPiece.active)
+        {
+            Clear();
+            Copy();
+            Drop();
+            Set();
+        }
     }
 
     private void Clear()

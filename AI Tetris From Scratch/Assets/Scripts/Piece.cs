@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -36,15 +37,44 @@ public class Piece : MonoBehaviour
     public bool previousHold; //0 = not this piece, 1 = yes this piece. locks hold until piece placed
     float currTime; //time saved at start of loop
 
-    bool active; //if class is active
+    public bool active; //if class is active
     public bool gameOver; //if current game should be stopped
+    public bool firstGameOver;
+    public bool trainingMode; //if currently in AI training mode, changes game over screen
     RectInt bounds;
 
-
+    public void Start()
+    {
+        
+    }
     public void Update()
     {
 
-        if (!active || gameOver) //if the piece has not been initialized yet, do not execute update func
+        if (gameOver && firstGameOver)
+        {
+            if (trainingMode)
+            {
+                StopClass();
+                player.opponent.piece.StopClass();
+                player.opponent.AI.AddReward(0.1f);
+                player.AI.AddReward(-1f);
+                player.main.episodeAlreadyStarted = false;
+                player.AI.EndEpisode();
+                player.opponent.AI.EndEpisode();
+                return;
+            } else
+            {
+                StopClass();
+                player.opponent.piece.StopClass();
+                player.main.ResetPlayers();
+                return;
+            }
+            
+        }
+
+
+
+        if (!active) //if the piece has not been initialized yet, do not execute update func
         {
             return;
         }
@@ -57,12 +87,13 @@ public class Piece : MonoBehaviour
         UpdateFallSpeed();
 
 
-        if (lockPiece == true)
+        if (lockPiece)
         {
             //different loop when next piece drop should lock
-            UnlockPiece();
+            
+            //UnlockPiece();
 
-            if (maxLockTime < currTime - lockPieceTimer)
+            if (maxLockTime < currTime - lockPieceTimer && lockPiece && !IsValidLocation(this, position + Vector2Int.down))
             {
                 StopClass();
                 PlacePiece();
@@ -87,9 +118,11 @@ public class Piece : MonoBehaviour
         if (nextDrop == 1)
         {
             HardDropPiece();
+
             nextDrop = 0;
             nextRotation = 0;
             nextMovement = 0;
+
         }
 
         if (nextDrop == -1 && softDropping == false)
@@ -115,7 +148,7 @@ public class Piece : MonoBehaviour
             nextMovement = 0;
         }
 
-        if (PieceAutoFallTimer(this) && !lockPiece)
+        if (PieceAutoFallTimer(this) && IsValidLocation(this, position + Vector2Int.down))
         {
             lastFallTime = Time.time;
             MovePieceDown(this);
@@ -132,6 +165,16 @@ public class Piece : MonoBehaviour
 
     }
 
+    public void ResetVars()
+    {
+        firstGameOver = true;
+        nextRotation = 0;
+        nextMovement = 0;
+        nextHold = 0;
+        previousHold = false;
+        softDropping = false;
+    }
+
     public void LoadFirstPiece(TetrominoData tetrominoData, Vector2Int _position)
     {
         //Initialize class
@@ -145,29 +188,34 @@ public class Piece : MonoBehaviour
         position = startPosition + data.startPositionOffset;
         bounds = player.bounds;
         lastMoveTime = Time.time;
+        lastFallTime = Time.time;
         rotationIndex = 0;
         fieldOffset= player.fieldOffset;
         ResumeClass();
 
     }
 
-    public void LoadNextPiece(TetrominoData tetrominoData)
+    public void LoadNextPiece(TetrominoData tetrominoData, Vector2Int _position)
     {
+        startPosition = _position;
         data = tetrominoData;
+        fieldOffset = player.fieldOffset;
+        bounds = player.bounds;
+        blocks = new Vector2Int[data.blocks.Length];
         for (int i = 0; i < blocks.Length; i++)
         {
             blocks[i] = (Vector2Int)data.blocks[i];
         }
         rotationIndex = 0;
 
-        Vector2Int startOffset = new Vector2Int(0, 0);
-        while (!IsValidLocation(this, startPosition + startOffset))
+        if (IsValidLocation(this, startPosition)){
+            position = startPosition;
+        } else
         {
-            startOffset += new Vector2Int(0, 1);
+            player.GameOver();
         }
-
-        position = startPosition + startOffset;
         lastMoveTime = Time.time;
+        lastFallTime = Time.time;
         ResumeClass();
     }
 
@@ -193,14 +241,15 @@ public class Piece : MonoBehaviour
             Vector3Int blockPosition = new Vector3Int(block.x + tilePositions.x, block.y + tilePositions.y, 0);
             tilemap.SetTile(blockPosition, piece.data.tile);
 
-            try
-            {
-                player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 1;
-            }
-            catch (Exception e)
-            {
-                print(e.ToString());
-            }
+            //set field var, doesnt work
+            //try
+            //{
+            //    player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 1;
+            //}
+            //catch (Exception e)
+            //{
+            //    print(e.ToString());
+            //}
         }
     }
 
@@ -214,14 +263,15 @@ public class Piece : MonoBehaviour
             Vector3Int blockPosition = new Vector3Int(block.x + tilePositions.x, block.y + tilePositions.y, 0);
             tilemap.SetTile(blockPosition, null);
 
-            try
-            {
-                player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 0;
-            }
-            catch (Exception e)
-            {
-                print(e.ToString());
-            }
+            //clear field var, doesnt work
+            //try
+            //{
+            //    player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 0;
+            //}
+            //catch (Exception e)
+            //{
+            //    print(e.ToString());
+            //}
         }
     }
 
@@ -238,6 +288,18 @@ public class Piece : MonoBehaviour
     {
         //locking piece, clearing lines and loading next piece
         SetPiece(this);
+        //player.AI.AddReward(player.AI.NormalizeObservationValue(-position.y - 6, 5 * 16, -10));
+        if (-position.y -7 > 0)
+        {
+            //print("block height reward: " + 8 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
+            player.AI.AddReward(1/8 * (-position.y - 7));
+        }
+        // else
+        //{
+        //    //print("block height reward: " + 13 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
+        //    player.AI.AddReward(13 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
+
+        //}
         player.CheckForClearedLines();
         player.CheckGameOver();
         //resetting values
@@ -261,7 +323,7 @@ public class Piece : MonoBehaviour
     public void RotateTiles(Piece piece, int direction)
     {
         float[] matrix = Data.RotationMatrix;
- 
+
         // Rotate all of the piece.blocks using the rotation matrix
         for (int i = 0; i < piece.blocks.Length; i++)
         {
@@ -288,11 +350,13 @@ public class Piece : MonoBehaviour
 
             piece.blocks[i] = new Vector2Int(x, y);
         }
+        
     }
 
     public void RotatePiece(Piece piece)
     {
         //rotate tiles beforehand for hitboxes
+
         RotateTiles(piece, piece.nextRotation);
 
 
@@ -347,15 +411,16 @@ public class Piece : MonoBehaviour
 
     public void HardDropPiece()
     {
-        //check places below cvurrent location until invalid, set to previous position and fully place piece
-        for (int i = 0; i < 24; i++)
+        //check places below current location until invalid, set to previous position and fully place piece
+        for (int i = 0; i < player.fieldSize.y; i++)
         {
-            if (!IsValidLocation(this, position + i * Vector2Int.down))
+            if (!IsValidLocation(this, position + Vector2Int.down))
             {
-                position += (i - 1) * Vector2Int.down;
+                StopClass();
                 PlacePiece();
                 return;
             }
+            position += Vector2Int.down;
         }
     }
 

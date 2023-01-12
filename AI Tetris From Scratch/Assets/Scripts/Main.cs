@@ -5,7 +5,8 @@ using UnityEngine.Tilemaps;
 
 public class Main : MonoBehaviour
 {
-    public GameObject player;
+    public GameObject player1OBJ;
+    public GameObject player2OBJ;
     public Player player1;
     public Player player2;
     public float maxLockTime;
@@ -21,6 +22,7 @@ public class Main : MonoBehaviour
 
     public TileBase garbageTile;
 
+    public bool episodeAlreadyStarted;
 
     // Start is called before the first frame update
     void Start()
@@ -31,15 +33,43 @@ public class Main : MonoBehaviour
 
 
         //GameObject gameObject = Instantiate() to save reference to player
-        player1 = Instantiate(player, new Vector3(8,0,0), Quaternion.identity).GetComponent<Player>();
-        player2 = Instantiate(player, new Vector3(-10,0,0), Quaternion.identity).GetComponent<Player>();
+        player1 = Instantiate(player1OBJ, this.transform.position + new Vector3(-10,0,0), Quaternion.identity).GetComponent<Player>();
+        player2 = Instantiate(player2OBJ, this.transform.position + new Vector3(8,0,0), Quaternion.identity).GetComponent<Player>();
 
         player1.main = this;
         player2.main = this;
 
+
+
         player1.opponent = player2;
         player2.opponent = player1;
 
+        if (player1.isAI)
+        {
+            player1.AI.main = this;
+        }
+        if (player2.isAI)
+        {
+            player2.AI.main = this;
+        }
+
+
+        if (!episodeAlreadyStarted)
+        {
+            episodeAlreadyStarted = true;
+            ResetPlayers();
+        }
+
+    }
+
+    public void ResetPlayers()
+    {
+        player1.ResetClass();
+        player2.ResetClass();
+        player1.piece.gameOver = false;
+        player2.piece.gameOver = false;
+
+        timeStarted = Time.time;
     }
 
     // Update is called once per frame

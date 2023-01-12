@@ -8,21 +8,30 @@ using Unity.VisualScripting;
 using Unity.Mathematics;
 using JetBrains.Annotations;
 
+
+public class Script : MonoBehaviour
+{
+
+
+}
+
 public class Player : MonoBehaviour
 {
     //script runs in prefab
 
     public Tilemap tilemap;
+    public Ghost ghost;
     public int[,] field; //playing field as ints (bool) for ai input
     public int highestPieceHeight; //highest piece of tetris tower, input for ai to know opponent board state
     public Vector2Int fieldSize; //x and y size of field
     public Vector2Int fieldOffset; //offset from tilemap to field var
+    public TetrominoData[] tetrominoBagOriginal; //originally sorted bag
     public TetrominoData[] tetrominoBag1; //first bag of tetrominoes
     public TetrominoData[] tetrominoBag2; //second bag
     public TetrominoData currentPieceData; //current piece
     public int pieceCounter; //counts how many pieces have been dropped from first bag, max 7
     //public TetrominoData currentPieceData;
-    public bool pieceBeingHeld; 
+    bool pieceBeingHeld; 
     public Piece piece;
     public TetrominoData holdingPiece; //piece being held
     public Vector2Int startPosition;
@@ -30,8 +39,13 @@ public class Player : MonoBehaviour
     public Main main;
     public Player opponent;
     public int garbageRowsToAdd;
-    public bool lastClearWasTetris; 
+    bool lastClearWasTetris;
 
+    public bool firstLoop;
+
+    public bool isAI;
+    public TetrisAI AI;
+    public float clearLineRewardMultiplier; 
 
     public Vector2Int[] data;
 
@@ -40,18 +54,43 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        field = new int[fieldSize.x, fieldSize.y];
-        
-        //assigning correct block locations from Data to tetrominoes
-        for (int i = 0; i < tetrominoBag1.Length; i++)
+
+
+ 
+
+
+    }
+
+    public void ResetClass()
+    {
+        if (firstLoop)
         {
-            tetrominoBag1[i].Initialize();
+            field = new int[fieldSize.x, fieldSize.y];
+            tetrominoBagOriginal = tetrominoBag1;
+            //assigning correct block locations from Data to tetrominoes
+
+            for (int i = 0; i < tetrominoBag1.Length; i++)
+            {
+                tetrominoBag1[i].Initialize();
+            }
+
+            //copying tetromino amounts to bag 2
+
+            tetrominoBag2 = tetrominoBag1;
+            firstLoop = false;
         }
+
+
+        tilemap.ClearAllTiles();
+        ghost.tilemap.ClearAllTiles();
+
+
+
+        tetrominoBag1 = tetrominoBagOriginal;
+        tetrominoBag2 = tetrominoBag1;
 
         pieceBeingHeld = false;
 
-        //copying tetromino amounts to bag 2
-        tetrominoBag2 = tetrominoBag1;
 
         //randomizing both bag orders
         System.Random rnd1 = new System.Random();
@@ -61,6 +100,14 @@ public class Player : MonoBehaviour
         tetrominoBag2 = tetrominoBag2.OrderBy(c => rnd2.Next()).ToArray();
         TetrominoData currentPieceData = tetrominoBag1[0];
 
+        for (int i = 0; i < field.GetLength(0); i++)
+        {
+            for (int j = 0; j < field.GetLength(1); j++)
+            {
+                field[i, j] = 0;
+            }
+        }
+
         //display pieces in queue
         for (int i = 0; i < 4; i++)
         {
@@ -68,27 +115,51 @@ public class Player : MonoBehaviour
             DisplayPiece(tetrominoBag1[i], i + 1);
         }
 
-        piece.LoadFirstPiece(currentPieceData, startPosition);
+        piece.LoadNextPiece(currentPieceData, startPosition);
+
         pieceCounter = 1;
+
+        piece.ResetVars();
+
     }
 
     public void CheckForClearedLines()
     {
         bool[] linesToClear = new bool[field.GetLength(1)];
+        int[] editedRows = new int[piece.blocks.Length];
+
+        for (int i = 0; i < piece.blocks.Length; i++)
+        {
+            editedRows[i] = piece.position.y + piece.blocks[i].y - fieldOffset.y;
+
+        }
+
+        //foreach (int row in editedRows)
+        //{
+        //    print("Edited row " + ": " + row.ToString());
+        //}
 
         for (int i = 0; i < field.GetLength(1); i++)
         {
             linesToClear[i] = true;
+            int blocksThisRow = 10;
 
             for (int j = 0; j < field.GetLength(0); j++)
             {
                 Vector3Int tileToCheck = new Vector3Int(j + fieldOffset.x, i + fieldOffset.y, 0);
                 if (!tilemap.HasTile(tileToCheck))
                 {
+                    blocksThisRow--;
                     linesToClear[i] = false; 
-                    break;
                 }
             }
+            if (blocksThisRow - 6 > 0 && editedRows.Contains(i))
+            {
+                //print("row: " + i + "reward: " + AI.NormalizeObservationValue(3 * (blocksThisRow - 6), 20 * 9, 0).ToString());
+                //print("blocksThisRow reward: " + 15 * AI.NormalizeObservationValue((blocksThisRow - 6), 20 * 3, 0));
+                AI.AddReward( 1/8 * (blocksThisRow - 6) * (blocksThisRow - 6));
+            }
+
         }
 
 
@@ -131,45 +202,78 @@ public class Player : MonoBehaviour
                 break;
             case 1:
                 opponent.garbageRowsToAdd += 0;
+                if (piece.trainingMode)
+                {
+                    //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 1, 14, 0));
+                    AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 1, 14, 0));
+                }
                 lastClearWasTetris = false;
                 break;
             case 2:
                 opponent.garbageRowsToAdd += 1;
+                if (piece.trainingMode)
+                {
+                    //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 2, 14, 0));
+                    AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 2, 14, 0));
+                }
                 lastClearWasTetris = false;
                 break;
             case 3:
                 opponent.garbageRowsToAdd += 2;
+                if (piece.trainingMode)
+                {
+                    //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 4, 14, 0));
+                    AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 4, 14, 0));
+                }
                 lastClearWasTetris = false;
                 break;
             case 4:
                 if (lastClearWasTetris)
                 {
                     opponent.garbageRowsToAdd += 6;
+                    if (piece.trainingMode)
+                    {
+                        //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 8, 14, 0));
+                        AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 10, 14, 0));
+                    }
                 }
                 opponent.garbageRowsToAdd += 4;
+                if (piece.trainingMode)
+                {
+                    //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 6, 14, 0));
+                    AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 6, 14, 0));
+                }
                 lastClearWasTetris = true;
                 break;
         }
+        
     }
 
     public void SetFieldVar()
     {
-        for (int i = 0; i < fieldSize.y; i++)
+        try
         {
-            for (int j = 0; j < fieldSize.x; j++)
+            for (int i = 0; i < fieldSize.y; i++)
             {
-                Vector3Int position = new Vector3Int(j + fieldOffset.x, i + fieldOffset.y, 0);
-                if (tilemap.HasTile(position))
+                for (int j = 0; j < fieldSize.x; j++)
                 {
-                    field[j, i] = 1;
+                    Vector3Int position = new Vector3Int(j + fieldOffset.x, i + fieldOffset.y, 0);
+                    if (tilemap.HasTile(position))
+                    {
+                        field[j, i] = 1;
+                    }
+                    else
+                    {
+                        field[j, i] = 0;
+                    }
                 }
-                else
-                {
-                    field[j, i] = 0;
-                }
-            }
 
+            }
+        } catch (Exception e)
+        {
+            Debug.LogError(e.ToString());
         }
+        
     }
 
     public void ReceiveGarbage()
@@ -212,6 +316,7 @@ public class Player : MonoBehaviour
             }
 
         }
+        CheckGameOver();
 
         SetFieldVar();
     }
@@ -231,7 +336,7 @@ public class Player : MonoBehaviour
         tetrominoBag1[0] = holdingPiece;
         TetrominoData currentPieceData = tetrominoBag1[0];
         holdingPiece = tempPiece;
-        piece.LoadNextPiece(currentPieceData);
+        piece.LoadNextPiece(currentPieceData, startPosition);
         DisplayPiece(holdingPiece, 0);
 
     }
@@ -321,9 +426,10 @@ public class Player : MonoBehaviour
         tetrominoBag1 = ShiftTetrominoBag(tetrominoBag1);
         //set current piece to first piece from bag
         currentPieceData = tetrominoBag1[0];
-        piece.LoadNextPiece(currentPieceData);
+        piece.LoadNextPiece(currentPieceData, startPosition);
 
         //display pieces in queue
+
         for (int i = 1; i < 5; i++)
         {
             ClearDisplayPiece(i);
@@ -341,6 +447,7 @@ public class Player : MonoBehaviour
         }
 
         //testing field var
+
         //for (int i = 0; i < field.GetLength(1); i++)
         //{
         //    for (int j = 0; j < field.GetLength(0); j++)
@@ -377,7 +484,12 @@ public class Player : MonoBehaviour
         {
             GameOver();
         }
+        //print(NormalizeObservationValue(19 - highestPieceHeight, 50 * 10, 0));
+        //AI.AddReward(AI.NormalizeObservationValue(19 - highestPieceHeight, 50 * 10, 0));
+
     }
+
+
 
     public void GameOver()
     {

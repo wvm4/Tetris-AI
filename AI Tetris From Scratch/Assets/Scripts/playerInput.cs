@@ -18,6 +18,9 @@ public class playerInput : MonoBehaviour
     private float oldHoriInput;
     private float oldVertiInput;
 
+    public string vertiName;
+    public string horiName;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,8 +32,8 @@ public class playerInput : MonoBehaviour
     {
         oldHoriInput = horiInput;
         oldVertiInput = vertiInput;
-        horiInput = Input.GetAxis("Horizontal");
-        vertiInput = Input.GetAxis("Vertical");
+        horiInput = Input.GetAxis(horiName);
+        vertiInput = Input.GetAxis(vertiName);
 
         if (horiInput > 0 && oldHoriInput <= 0)
         {
