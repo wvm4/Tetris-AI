@@ -217,6 +217,7 @@ MonoBehaviour:
   gameOver: 0
   firstGameOver: 0
   trainingMode: 1
+  lastUpdateAI: 0
 --- !u!1 &6576278742796584248
 GameObject:
   m_ObjectHideFlags: 0
@@ -698,7 +699,10 @@ MonoBehaviour:
   firstLoop: 1
   isAI: 1
   AI: {fileID: 2947780893154816241}
+  AIStepTime: 0.1
   clearLineRewardMultiplier: 50
+  linesClearedTotal: 0
+  boardHeightMap: 
   data: []
 --- !u!1 &6576278744569137449
 GameObject:
@@ -898,7 +902,6 @@ GameObject:
   - component: {fileID: 6379851803272204027}
   - component: {fileID: 2947780893154816241}
   - component: {fileID: 3165822452361455522}
-  - component: {fileID: 2087540253011535677}
   m_Layer: 0
   m_Name: AI
   m_TagString: Untagged
@@ -934,16 +937,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 288
+    VectorObservationSize: 289
     NumStackedVectorObservations: 3
     m_ActionSpec:
       m_NumContinuousActions: 0
-      BranchSizes: 03000000030000000300000002000000
-    VectorActionSize: 03000000030000000300000002000000
+      BranchSizes: 07000000
+    VectorActionSize: 07000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: be6511a260d0e3a439463263c48b53a1, type: 3}
   m_InferenceDevice: 1
   m_BehaviorType: 0
   m_BehaviorName: Tetris
@@ -986,19 +989,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Record: 0
   NumStepsToRecord: 0
-  DemonstrationName: TetrisCopium2
+  DemonstrationName: TetrisHeightMap1
   DemonstrationDirectory: Assets/Demonstrations
---- !u!114 &2087540253011535677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8328210904356650919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DecisionPeriod: 5
-  TakeActionsBetweenDecisions: 1

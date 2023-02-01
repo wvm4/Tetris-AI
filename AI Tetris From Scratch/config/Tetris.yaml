@@ -3,9 +3,9 @@ behaviors:
     trainer_type: ppo
     hyperparameters:
       batch_size: 256
-      buffer_size: 16384
-      learning_rate: 9.0e-4
-      beta: 2.0e-2
+      buffer_size: 65536
+      learning_rate: 5.0e-4
+      beta: 5.0e-3
       epsilon: 0.24
       lambd: 0.97
       num_epoch: 3
@@ -21,16 +21,16 @@ behaviors:
       gail:
         strength: 0.3
         gamma: 0.99
-        demo_path: Assets/Demonstrations/TetrisCopium2.demo
-    max_steps: 8.0e+7
+        demo_path: Assets/Demonstrations/TetrisAgain2.demo
+    max_steps: 1.6e+8
     time_horizon: 2048
-    summary_freq: 15000
+    summary_freq: 100000
     keep_checkpoints: 20
-    checkpoint_interval: 250000
+    checkpoint_interval: 500000
     self_play:
       window: 10
-      play_against_latest_model_ratio: 0.5
+      play_against_latest_model_ratio: 0.75
       save_steps: 20000
-      swap_steps: 10000
+      swap_steps: 20000
       team_change: 100000
 

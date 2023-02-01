@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEditor.UIElements;
+using System.Xml;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using UnityEngine.Rendering;
@@ -43,12 +43,16 @@ public class Piece : MonoBehaviour
     public bool trainingMode; //if currently in AI training mode, changes game over screen
     RectInt bounds;
 
-    public void Start()
-    {
-        
-    }
+    public float lastUpdateAI;
+
     public void Update()
     {
+        currTime = Time.time;
+
+        if (currTime - lastUpdateAI < player.AIStepTime)
+        {
+            return;
+        }
 
         if (gameOver && firstGameOver)
         {
@@ -56,7 +60,7 @@ public class Piece : MonoBehaviour
             {
                 StopClass();
                 player.opponent.piece.StopClass();
-                player.opponent.AI.AddReward(0.1f);
+                player.opponent.AI.AddReward(1f);
                 player.AI.AddReward(-1f);
                 player.main.episodeAlreadyStarted = false;
                 player.AI.EndEpisode();
@@ -69,7 +73,7 @@ public class Piece : MonoBehaviour
                 player.main.ResetPlayers();
                 return;
             }
-            
+
         }
 
 
@@ -79,89 +83,185 @@ public class Piece : MonoBehaviour
             return;
         }
 
-
-        ClearPiece(this);
-
-        currTime = Time.time;
-
-        UpdateFallSpeed();
-
-
-        if (lockPiece)
+        if (player.isAI)
         {
-            //different loop when next piece drop should lock
-            
-            //UnlockPiece();
+            //if (currTime - lastUpdateAI < player.AIStepTime)
+            //{
+            //    return;
+            //}
+            lastUpdateAI = currTime;
 
-            if (maxLockTime < currTime - lockPieceTimer && lockPiece && !IsValidLocation(this, position + Vector2Int.down))
+            ClearPiece(this);
+
+            player.AI.RequestDecision();
+
+
+
+            if (lockPiece)
+            {
+                //different loop when next piece drop should lock
+
+                //UnlockPiece();
+
+                if (!IsValidLocation(this, position + Vector2Int.down))
+                {
+                    StopClass();
+                    PlacePiece();
+                    return;
+                }
+
+            }
+
+            //normal game loop
+            if (nextHold == 1 && !previousHold)
             {
                 StopClass();
-                PlacePiece();
-                return;
+                player.HoldPiece();
+                previousHold = true;
+                nextHold = 0;
+                nextDrop = 0;
+                nextRotation = 0;
+                nextMovement = 0;
+                ResumeClass();
             }
-            
-        }
-        
-        //normal game loop
-        if (nextHold == 1 && !previousHold)
+
+            if (nextDrop == 1)
+            {
+                HardDropPiece();
+
+                nextDrop = 0;
+                nextRotation = 0;
+                nextMovement = 0;
+            }
+
+            //if (nextDrop == -1 && softDropping == false)
+            //{
+            //    softDropping = true;
+            //}
+
+            //if (nextDrop == 0 && softDropping == true)
+            //{
+            //    softDropping = false;
+            //}
+
+            if (nextRotation != 0)
+            {
+                RotatePiece(this);
+                nextRotation = 0;
+                nextMovement = 0;
+            }
+
+            if (nextMovement != 0)
+            {
+                MovePiece(this);
+                nextMovement = 0;
+            }
+
+            //if (PieceAutoFallTimer(this) && IsValidLocation(this, position + Vector2Int.down))
+            //{
+            //    lastFallTime = Time.time;
+            //    MovePieceDown(this);
+
+            //}
+
+            if (nextDrop == -1 && IsValidLocation(this, position + Vector2Int.down) || currTime - lastFallTime > 8 * player.AIStepTime && IsValidLocation(this, position + Vector2Int.down))
+            {
+                lastFallTime = currTime;
+                MovePieceDown(this);
+            }
+
+            if (!lockPiece)
+            {
+                LockPiece();
+            }
+
+
+            SetPiece(this);
+        } else
         {
-            StopClass();
-            player.HoldPiece();
-            previousHold = true;
-            nextHold = 0;
-            nextDrop = 0;
-            nextRotation = 0;
-            nextMovement = 0;
-            ResumeClass();
+
+            ClearPiece(this);
+
+
+            UpdateFallSpeed();
+
+
+            if (lockPiece)
+            {
+                //different loop when next piece drop should lock
+
+                //UnlockPiece();
+
+                if (maxLockTime < currTime - lockPieceTimer && lockPiece && !IsValidLocation(this, position + Vector2Int.down))
+                {
+                    StopClass();
+                    PlacePiece();
+                    return;
+                }
+
+            }
+
+            //normal game loop
+            if (nextHold == 1 && !previousHold)
+            {
+                StopClass();
+                player.HoldPiece();
+                previousHold = true;
+                nextHold = 0;
+                nextDrop = 0;
+                nextRotation = 0;
+                nextMovement = 0;
+                ResumeClass();
+            }
+
+            if (nextDrop == 1)
+            {
+                HardDropPiece();
+
+                nextDrop = 0;
+                nextRotation = 0;
+                nextMovement = 0;
+
+            }
+
+            if (nextDrop == -1 && softDropping == false)
+            {
+                softDropping = true;
+            }
+
+            if (nextDrop == 0 && softDropping == true)
+            {
+                softDropping = false;
+            }
+
+            if (nextRotation != 0)
+            {
+                RotatePiece(this);
+                nextRotation = 0;
+                nextMovement = 0;
+            }
+
+            if (nextMovement != 0)
+            {
+                MovePiece(this);
+                nextMovement = 0;
+            }
+
+            if (PieceAutoFallTimer(this) && IsValidLocation(this, position + Vector2Int.down))
+            {
+                lastFallTime = Time.time;
+                MovePieceDown(this);
+
+            }
+
+            if (!lockPiece)
+            {
+                LockPiece();
+            }
+
+
+            SetPiece(this);
         }
-
-        if (nextDrop == 1)
-        {
-            HardDropPiece();
-
-            nextDrop = 0;
-            nextRotation = 0;
-            nextMovement = 0;
-
-        }
-
-        if (nextDrop == -1 && softDropping == false)
-        {
-            softDropping = true;
-        }
-
-        if (nextDrop == 0 && softDropping == true)
-        {
-            softDropping = false;
-        }
-
-        if (nextRotation != 0)
-        {
-            RotatePiece(this);
-            nextRotation = 0;
-            nextMovement = 0;
-        }
-
-        if (nextMovement != 0)
-        {
-            MovePiece(this);
-            nextMovement = 0;
-        }
-
-        if (PieceAutoFallTimer(this) && IsValidLocation(this, position + Vector2Int.down))
-        {
-            lastFallTime = Time.time;
-            MovePieceDown(this);
-
-        }
-
-        if (!lockPiece)
-        {
-            LockPiece();
-        }
-
-
-        SetPiece(this);
 
     }
 
@@ -241,15 +341,15 @@ public class Piece : MonoBehaviour
             Vector3Int blockPosition = new Vector3Int(block.x + tilePositions.x, block.y + tilePositions.y, 0);
             tilemap.SetTile(blockPosition, piece.data.tile);
 
-            //set field var, doesnt work
-            //try
-            //{
-            //    player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 1;
-            //}
-            //catch (Exception e)
-            //{
-            //    print(e.ToString());
-            //}
+            //set field var
+            try
+            {
+                player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 1;
+            }
+            catch (Exception e)
+            {
+                print(e.ToString());
+            }
         }
     }
 
@@ -263,15 +363,15 @@ public class Piece : MonoBehaviour
             Vector3Int blockPosition = new Vector3Int(block.x + tilePositions.x, block.y + tilePositions.y, 0);
             tilemap.SetTile(blockPosition, null);
 
-            //clear field var, doesnt work
-            //try
-            //{
-            //    player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 0;
-            //}
-            //catch (Exception e)
-            //{
-            //    print(e.ToString());
-            //}
+            //clear field var
+            try
+            {
+                player.field[blockPosition.x - fieldOffset.x, blockPosition.y - fieldOffset.y] = 0;
+            }
+            catch (Exception e)
+            {
+                print(e.ToString());
+            }
         }
     }
 
@@ -289,10 +389,17 @@ public class Piece : MonoBehaviour
         //locking piece, clearing lines and loading next piece
         SetPiece(this);
         //player.AI.AddReward(player.AI.NormalizeObservationValue(-position.y - 6, 5 * 16, -10));
-        if (-position.y -7 > 0)
+        if (-position.y -4 > 0)
         {
             //print("block height reward: " + 8 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
-            player.AI.AddReward(1/8 * (-position.y - 7));
+            //player.AI.AddReward(player.AI.NormalizeObservationValue(-position.y - 4,4 * 6, 0));
+        }
+        if (position.x < 0)
+        {
+            //player.AI.AddReward(player.AI.NormalizeObservationValue(-position.x, 4 * 5, 0));
+        } else
+        {
+            //player.AI.AddReward(player.AI.NormalizeObservationValue(position.x, 4 * 5, 0));
         }
         // else
         //{
@@ -300,6 +407,18 @@ public class Piece : MonoBehaviour
         //    player.AI.AddReward(13 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
 
         //}
+
+        //give agent a penalty for leaving an empty space under a piece
+        foreach (Vector2Int block in blocks)
+        {
+            Vector2Int blockPosDown = position + block + Vector2Int.down;
+            if (IsTileValid(blockPosDown) && IsWithinBounds(blockPosDown))
+            {
+                player.AI.AddReward(-(1 / 12));
+                //print("created gap");
+            }
+        }
+
         player.CheckForClearedLines();
         player.CheckGameOver();
         //resetting values

@@ -30,6 +30,11 @@ public class playerInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (piece.trainingMode)
+        {
+            return;
+        }
+
         oldHoriInput = horiInput;
         oldVertiInput = vertiInput;
         horiInput = Input.GetAxis(horiName);
