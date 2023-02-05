@@ -25,30 +25,42 @@ public class TetrisAI : Agent
         //piece.nextDrop = AIOutputs(actions.DiscreteActions[2]);
         //piece.nextHold = actions.DiscreteActions[3];
 
+        //switch (actions.DiscreteActions[0])
+        //{
+        //    case 0:
+        //        piece.nextDrop = -1;
+        //        break;
+        //    case 1:
+        //        piece.nextDrop = 1;
+        //        break;
+        //    case 2:
+        //        piece.nextMovement = 1;
+        //        break;
+        //    case 3:
+        //        piece.nextMovement = -1;
+        //        break;
+        //    case 4:
+        //        piece.nextRotation = 1;
+        //        break;
+        //    case 5:
+        //        piece.nextRotation = -1;
+        //        break;
+        //    case 6:
+        //        piece.nextHold = 1;
+        //        break;
+        //}
+
         switch (actions.DiscreteActions[0])
         {
-            case 0:
-                piece.nextDrop = -1;
+            default:
+                piece.tryPosition.x = actions.DiscreteActions[0] - 5;
                 break;
-            case 1:
-                piece.nextDrop = 1;
-                break;
-            case 2:
-                piece.nextMovement = 1;
-                break;
-            case 3:
-                piece.nextMovement = -1;
-                break;
-            case 4:
-                piece.nextRotation = 1;
-                break;
-            case 5:
-                piece.nextRotation = -1;
-                break;
-            case 6:
+            case 10:
                 piece.nextHold = 1;
                 break;
         }
+
+        piece.tryRotationIndex = actions.DiscreteActions[1];
 
         //piece.nextMovement = actions.DiscreteActions[0];
         //piece.nextRotation = actions.DiscreteActions[1];
@@ -97,11 +109,11 @@ public class TetrisAI : Agent
 
         sensor.AddObservation(NormalizeObservationValue(ObserveTetromino(player.holdingPiece), 7, 0));
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 3; i++)
         {
             sensor.AddObservation(NormalizeObservationValue(ObserveTetromino(player.tetrominoBag1[i]), 7, 0));
         }
-        sensor.AddObservation(NormalizeObservationValue(player.opponent.highestPieceHeight, 28, 0));
+        //sensor.AddObservation(NormalizeObservationValue(player.opponent.highestPieceHeight, 28, 0));
         sensor.AddObservation(NormalizeObservationValue(piece.position.x - player.fieldOffset.x, 10, 0));
         sensor.AddObservation(NormalizeObservationValue(piece.position.y - player.fieldOffset.y, 28, 0));
         sensor.AddObservation(NormalizeObservationValue(piece.rotationIndex, 3, 0));
@@ -112,7 +124,7 @@ public class TetrisAI : Agent
             sensor.AddObservation(NormalizeObservationValue(piece.blocks[i].y, 28, 0));
         }
 
-        sensor.AddObservation(NormalizeObservationValue(player.linesClearedTotal, 1000, 0));
+        //sensor.AddObservation(NormalizeObservationValue(player.linesClearedTotal, 1000, 0));
 
     }
 

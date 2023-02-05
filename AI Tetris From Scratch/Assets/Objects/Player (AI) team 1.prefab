@@ -217,6 +217,8 @@ MonoBehaviour:
   gameOver: 0
   firstGameOver: 0
   trainingMode: 1
+  tryPosition: {x: 0, y: 0}
+  tryRotationIndex: 0
   lastUpdateAI: 0
 --- !u!1 &5999796665161492378
 GameObject:
@@ -937,12 +939,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 289
+    VectorObservationSize: 285
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
-      BranchSizes: 07000000
-    VectorActionSize: 07000000
+      BranchSizes: 0b00000004000000
+    VectorActionSize: 0b00000004000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 0
     hasUpgradedBrainParametersWithActionSpec: 1

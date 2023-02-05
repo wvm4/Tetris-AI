@@ -18,10 +18,6 @@ behaviors:
       extrinsic:
         gamma: 0.99
         strength: 1.0
-      gail:
-        strength: 0.3
-        gamma: 0.99
-        demo_path: Assets/Demonstrations/TetrisAgainNoStackedVector.demo
     max_steps: 3.2e+8
     time_horizon: 2048
     summary_freq: 100000

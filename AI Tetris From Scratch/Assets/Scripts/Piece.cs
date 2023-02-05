@@ -43,6 +43,9 @@ public class Piece : MonoBehaviour
     public bool trainingMode; //if currently in AI training mode, changes game over screen
     RectInt bounds;
 
+    public Vector2Int tryPosition; //position for AI to try hard dropping
+    public int tryRotationIndex; //rotation of piece for ai to try
+
     public float lastUpdateAI;
 
     public void Update()
@@ -113,63 +116,55 @@ public class Piece : MonoBehaviour
 
             }
 
-            //normal game loop
-            if (nextHold == 1 && !previousHold)
+            //rotating piece into desired rotation
+            if (rotationIndex - tryRotationIndex > 0)
             {
-                StopClass();
-                player.HoldPiece();
-                previousHold = true;
-                nextHold = 0;
-                nextDrop = 0;
-                nextRotation = 0;
-                nextMovement = 0;
-                ResumeClass();
+                for (int i = 0; i < (rotationIndex - tryRotationIndex); i++)
+                {
+                    RotateTiles(this, -1);
+                }
+            } else
+            {
+                for (int i = 0; i < -1 * (rotationIndex - tryRotationIndex); i++)
+                {
+                    RotateTiles(this, 1);
+                }
             }
 
-            if (nextDrop == 1)
+
+            //check if pos is valid at top of screen, if yes hard drop piece, if not reset piece pos and move one down
+            if (IsValidLocation(this, tryPosition))
             {
+                position = tryPosition;
+                rotationIndex = tryRotationIndex;
+
                 HardDropPiece();
 
-                nextDrop = 0;
-                nextRotation = 0;
-                nextMovement = 0;
             }
-
-            //if (nextDrop == -1 && softDropping == false)
-            //{
-            //    softDropping = true;
-            //}
-
-            //if (nextDrop == 0 && softDropping == true)
-            //{
-            //    softDropping = false;
-            //}
-
-            if (nextRotation != 0)
+            else
             {
-                RotatePiece(this);
-                nextRotation = 0;
-                nextMovement = 0;
+                //resetting piece rotation
+                if (rotationIndex - tryRotationIndex > 0)
+                {
+                    for (int i = 0; i < (rotationIndex - tryRotationIndex); i++)
+                    {
+                        RotateTiles(this, 1);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < -1 * (rotationIndex - tryRotationIndex); i++)
+                    {
+                        RotateTiles(this, -1);
+                    }
+                }
+                if (IsValidLocation(this, position + Vector2Int.down))
+                {
+                    MovePieceDown(this);
+                }
             }
 
-            if (nextMovement != 0)
-            {
-                MovePiece(this);
-                nextMovement = 0;
-            }
 
-            //if (PieceAutoFallTimer(this) && IsValidLocation(this, position + Vector2Int.down))
-            //{
-            //    lastFallTime = Time.time;
-            //    MovePieceDown(this);
-
-            //}
-
-            if (nextDrop == -1 && IsValidLocation(this, position + Vector2Int.down) || currTime - lastFallTime > 8 * player.AIStepTime && IsValidLocation(this, position + Vector2Int.down))
-            {
-                lastFallTime = currTime;
-                MovePieceDown(this);
-            }
 
             if (!lockPiece)
             {
@@ -287,6 +282,7 @@ public class Piece : MonoBehaviour
         }
         startPosition = _position;
         position = startPosition + data.startPositionOffset;
+        tryPosition.y = 11;
         bounds = player.bounds;
         lastMoveTime = Time.time;
         lastFallTime = Time.time;
