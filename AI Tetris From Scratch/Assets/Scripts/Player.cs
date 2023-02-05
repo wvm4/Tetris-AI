@@ -176,7 +176,7 @@ public class Player : MonoBehaviour
             {
                 //print("row: " + i + "reward: " + AI.NormalizeObservationValue(3 * (blocksThisRow - 6), 20 * 9, 0).ToString());
                 //print("blocksThisRow reward: " + 15 * AI.NormalizeObservationValue((blocksThisRow - 6), 20 * 3, 0));
-                AI.AddReward( 1/12 * (blocksThisRow - 7) * (blocksThisRow - 7));
+                //AI.AddReward( 1/12 * (blocksThisRow - 7) * (blocksThisRow - 7));
             }
 
         }

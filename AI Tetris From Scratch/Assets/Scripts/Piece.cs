@@ -61,6 +61,7 @@ public class Piece : MonoBehaviour
                 StopClass();
                 player.opponent.piece.StopClass();
                 player.opponent.AI.AddReward(1f);
+                player.AI.AddReward(-4f);
                 player.AI.AddReward(-1f);
                 player.main.episodeAlreadyStarted = false;
                 player.AI.EndEpisode();
@@ -414,7 +415,7 @@ public class Piece : MonoBehaviour
             Vector2Int blockPosDown = position + block + Vector2Int.down;
             if (IsTileValid(blockPosDown) && IsWithinBounds(blockPosDown))
             {
-                player.AI.AddReward(-(1 / 12));
+                player.AI.AddReward(-(1 / 6));
                 //print("created gap");
             }
         }

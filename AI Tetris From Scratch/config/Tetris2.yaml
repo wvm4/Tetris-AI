@@ -4,16 +4,16 @@ behaviors:
     hyperparameters:
       batch_size: 256
       buffer_size: 24576
-      learning_rate: 0.7e-3
-      beta: 5.0e-3
-      epsilon: 0.20
+      learning_rate: 1.2e-3
+      beta: 8.0e-3
+      epsilon: 0.27
       lambd: 0.99
       num_epoch: 3
       learning_rate_schedule: linear
     network_settings:
       normalize: false
-      hidden_units: 512
-      num_layers: 3
+      hidden_units: 1024
+      num_layers: 4
     reward_signals:
       extrinsic:
         gamma: 0.99
@@ -22,7 +22,7 @@ behaviors:
         strength: 0.3
         gamma: 0.99
         demo_path: Assets/Demonstrations/TetrisAgainNoStackedVector.demo
-    max_steps: 3.2e+8
+    max_steps: 1.6e+8
     time_horizon: 2048
     summary_freq: 100000
     keep_checkpoints: 30

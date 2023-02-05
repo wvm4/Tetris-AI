@@ -4,9 +4,9 @@ behaviors:
     hyperparameters:
       batch_size: 256
       buffer_size: 24576
-      learning_rate: 0.7e-3
-      beta: 5.0e-3
-      epsilon: 0.20
+      learning_rate: 0.6e-3
+      beta: 4.0e-3
+      epsilon: 0.135
       lambd: 0.99
       num_epoch: 3
       learning_rate_schedule: linear
