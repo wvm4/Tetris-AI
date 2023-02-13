@@ -58,14 +58,19 @@ public class Piece : MonoBehaviour
         {
             if (trainingMode)
             {
+                if (player.opponent.piece.gameOver)
+                {
+                    StopClass();
+                    player.opponent.piece.StopClass();
+                    player.opponent.AI.AddReward(-1f);
+                    //player.AI.AddReward(-4f);
+                    player.AI.AddReward(1f);
+                    player.main.episodeAlreadyStarted = false;
+                    player.AI.EndEpisode();
+                    player.opponent.AI.EndEpisode();
+                    return;
+                }
                 StopClass();
-                player.opponent.piece.StopClass();
-                player.opponent.AI.AddReward(1f);
-                player.AI.AddReward(-4f);
-                player.AI.AddReward(-1f);
-                player.main.episodeAlreadyStarted = false;
-                player.AI.EndEpisode();
-                player.opponent.AI.EndEpisode();
                 return;
             } else
             {
