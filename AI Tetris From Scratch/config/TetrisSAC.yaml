@@ -1,15 +1,15 @@
 behaviors:
   Tetris:
-    trainer_type: ppo
+    trainer_type: sac
     hyperparameters:
-      batch_size: 512
-      buffer_size: 16384
+      batch_size: 2048
+      buffer_size: 131072
+      buffer_init_steps: 5000
+      init_entcoef: 0.7
       learning_rate: 1.2e-3
-      beta: 2.9e-3
-      epsilon: 0.26
-      lambd: 0.97
-      num_epoch: 3
-      learning_rate_schedule: linear
+      steps_per_update: 64
+      learning_rate_schedule: constant
+      save_replay_buffer: true
     network_settings:
       normalize: false
       hidden_units: 512

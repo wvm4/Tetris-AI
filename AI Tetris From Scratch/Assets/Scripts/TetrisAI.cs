@@ -50,17 +50,12 @@ public class TetrisAI : Agent
         //        break;
         //}
 
-        switch (actions.DiscreteActions[0])
-        {
-            default:
-                piece.tryPosition.x = actions.DiscreteActions[0] - 5;
-                break;
-            case 10:
-                piece.nextHold = 1;
-                break;
-        }
+        piece.tryPosition.x = actions.DiscreteActions[0] - 5;
+
 
         piece.tryRotationIndex = actions.DiscreteActions[1];
+
+        piece.nextHold = actions.DiscreteActions[2];
 
         //piece.nextMovement = actions.DiscreteActions[0];
         //piece.nextRotation = actions.DiscreteActions[1];
@@ -107,22 +102,24 @@ public class TetrisAI : Agent
         //    sensor.AddObservation(NormalizeObservationValue(player.boardHeightMap[i], player.fieldSize.y, 0));
         //}
 
-        sensor.AddObservation(NormalizeObservationValue(ObserveTetromino(player.holdingPiece), 7, 0));
+        ObserveTetromino(player.holdingPiece, sensor);
 
         for (int i = 0; i < 3; i++)
         {
-            sensor.AddObservation(NormalizeObservationValue(ObserveTetromino(player.tetrominoBag1[i]), 7, 0));
+            ObserveTetromino(player.tetrominoBag1[i], sensor);
         }
-        //sensor.AddObservation(NormalizeObservationValue(player.opponent.highestPieceHeight, 28, 0));
-        sensor.AddObservation(NormalizeObservationValue(piece.position.x - player.fieldOffset.x, 10, 0));
-        sensor.AddObservation(NormalizeObservationValue(piece.position.y - player.fieldOffset.y, 28, 0));
-        sensor.AddObservation(NormalizeObservationValue(piece.rotationIndex, 3, 0));
 
-        for (int i = 0; i < 4; i++)
-        {
-            sensor.AddObservation(NormalizeObservationValue(piece.blocks[i].x, 10, 0));
-            sensor.AddObservation(NormalizeObservationValue(piece.blocks[i].y, 28, 0));
-        }
+        sensor.AddObservation(piece.previousHold);
+        //sensor.AddObservation(NormalizeObservationValue(player.opponent.highestPieceHeight, 28, 0));
+        //sensor.AddObservation(NormalizeObservationValue(piece.position.x - player.fieldOffset.x, 10, 0));
+        //sensor.AddObservation(NormalizeObservationValue(piece.position.y - player.fieldOffset.y, 28, 0));
+        //sensor.AddObservation(NormalizeObservationValue(piece.rotationIndex, 3, 0));
+
+        //for (int i = 0; i < 4; i++)
+        //{
+        //    sensor.AddObservation(NormalizeObservationValue(piece.blocks[i].x, 10, 0));
+        //    sensor.AddObservation(NormalizeObservationValue(piece.blocks[i].y, 28, 0));
+        //}
 
         //sensor.AddObservation(NormalizeObservationValue(player.linesClearedTotal, 1000, 0));
 
@@ -144,26 +141,82 @@ public class TetrisAI : Agent
 
    
 
-    public int ObserveTetromino(TetrominoData tetrominoData)
+    public void ObserveTetromino(TetrominoData tetrominoData, VectorSensor sensor)
     {
         switch (tetrominoData.tetromino)
         {
             default:
-                return 0;
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.I:
-                return 1;
+                sensor.AddObservation(1);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.O:
-                return 2;
+                sensor.AddObservation(0);
+                sensor.AddObservation(1);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.T:
-                return 3;
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(1);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.J:
-                return 4;
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(1);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.S:
-                return 5;
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(1);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.L:
-                return 6;
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(1);
+                sensor.AddObservation(0);
+                break;
             case Tetromino.Z:
-                return 7;
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(0);
+                sensor.AddObservation(1);
+                break;
         }
     }
 

@@ -50,6 +50,10 @@ public class Piece : MonoBehaviour
 
     public void Update()
     {
+        if (!active) //if the piece has not been initialized yet, do not execute update func
+        {
+            return;
+        }
         currTime = Time.time;
 
         if (currTime - lastUpdateAI < player.AIStepTime)
@@ -61,15 +65,21 @@ public class Piece : MonoBehaviour
         {
             if (trainingMode)
             {
+                if (player.opponent.piece.gameOver)
+                {
+                    StopClass();
+                    player.opponent.piece.StopClass();
+                    player.opponent.AI.AddReward(-1f);
+                    //player.AI.AddReward(-4f);
+                    player.AI.AddReward(1f);
+                    player.main.episodeAlreadyStarted = false;
+                    player.AI.EndEpisode();
+                    player.opponent.AI.EndEpisode();
+                    return;
+                }
                 StopClass();
-                player.opponent.piece.StopClass();
-                player.opponent.AI.AddReward(1f);
-                player.AI.AddReward(-4f);
-                player.AI.AddReward(-1f);
-                player.main.episodeAlreadyStarted = false;
-                player.AI.EndEpisode();
-                player.opponent.AI.EndEpisode();
                 return;
+                
             } else
             {
                 StopClass();
@@ -82,10 +92,7 @@ public class Piece : MonoBehaviour
 
 
 
-        if (!active) //if the piece has not been initialized yet, do not execute update func
-        {
-            return;
-        }
+
 
         if (player.isAI)
         {
@@ -101,75 +108,70 @@ public class Piece : MonoBehaviour
 
 
 
-            if (lockPiece)
+            //if (lockPiece)
+            //{
+            //    //different loop when next piece drop should lock
+
+            //    //UnlockPiece();
+
+            //    if (!IsValidLocation(this, position + Vector2Int.down))
+            //    {
+            //        StopClass();
+            //        PlacePiece();
+            //        return;
+            //    }
+
+            //}
+
+            if (nextHold == 1 && !previousHold)
             {
-                //different loop when next piece drop should lock
-
-                //UnlockPiece();
-
-                if (!IsValidLocation(this, position + Vector2Int.down))
-                {
-                    StopClass();
-                    PlacePiece();
-                    return;
-                }
-
+                player.HoldPiece();
+                previousHold = true;
+                nextHold = 0;
             }
 
             //rotating piece into desired rotation
-            if (rotationIndex - tryRotationIndex > 0)
+            nextRotation = 1;
+            for (int i = 0; i < tryRotationIndex; i++)
             {
-                for (int i = 0; i < (rotationIndex - tryRotationIndex); i++)
-                {
-                    RotateTiles(this, -1);
-                }
-            } else
-            {
-                for (int i = 0; i < -1 * (rotationIndex - tryRotationIndex); i++)
-                {
-                    RotateTiles(this, 1);
-                }
+                RotatePiece(this);
             }
+            rotationIndex = tryRotationIndex;
 
 
             //check if pos is valid at top of screen, if yes hard drop piece, if not reset piece pos and move one down
             if (IsValidLocation(this, tryPosition))
             {
                 position = tryPosition;
-                rotationIndex = tryRotationIndex;
+                player.AI.AddReward(1/10);
 
                 HardDropPiece();
 
             }
             else
             {
+                //player.AI.AddReward(-1);
+                HardDropPiece();
                 //resetting piece rotation
-                if (rotationIndex - tryRotationIndex > 0)
-                {
-                    for (int i = 0; i < (rotationIndex - tryRotationIndex); i++)
-                    {
-                        RotateTiles(this, 1);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < -1 * (rotationIndex - tryRotationIndex); i++)
-                    {
-                        RotateTiles(this, -1);
-                    }
-                }
-                if (IsValidLocation(this, position + Vector2Int.down))
-                {
-                    MovePieceDown(this);
-                }
+                //nextRotation = -1;
+                //for (int i = 0; i < tryRotationIndex; i++)
+                //{
+                //    RotatePiece(this);
+                //}
+
+
+                //if (IsValidLocation(this, position + Vector2Int.down))
+                //{
+                //    MovePieceDown(this);
+                //}
             }
 
 
 
-            if (!lockPiece)
-            {
-                LockPiece();
-            }
+            //if (!lockPiece)
+            //{
+            //    LockPiece();
+            //}
 
 
             SetPiece(this);

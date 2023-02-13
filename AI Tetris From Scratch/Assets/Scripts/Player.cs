@@ -126,7 +126,7 @@ public class Player : MonoBehaviour
 
     public void CheckForClearedLines()
     {
-        SetFieldVar();
+        //SetFieldVar();
 
         //set board height map
 
@@ -176,7 +176,7 @@ public class Player : MonoBehaviour
             {
                 //print("row: " + i + "reward: " + AI.NormalizeObservationValue(3 * (blocksThisRow - 6), 20 * 9, 0).ToString());
                 //print("blocksThisRow reward: " + 15 * AI.NormalizeObservationValue((blocksThisRow - 6), 20 * 3, 0));
-                //AI.AddReward( 1/12 * (blocksThisRow - 7) * (blocksThisRow - 7));
+                AI.AddReward( 1/12 * (blocksThisRow - 7) * (blocksThisRow - 7));
             }
 
         }
@@ -232,6 +232,7 @@ public class Player : MonoBehaviour
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 1, 14, 0));
                     AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared, 16, 0));
+                    //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = false;
                 break;
@@ -241,6 +242,7 @@ public class Player : MonoBehaviour
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 2, 14, 0));
                     AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 3, 16, 0));
+                    //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = false;
                 break;
@@ -250,6 +252,7 @@ public class Player : MonoBehaviour
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 4, 14, 0));
                     AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 7, 16, 0));
+                    //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = false;
                 break;
@@ -261,6 +264,7 @@ public class Player : MonoBehaviour
                     {
                         //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 8, 14, 0));
                         AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 12, 16, 0));
+                        //AI.AddReward(6 * 6);
                     }
                 }
                 opponent.garbageRowsToAdd += 4;
@@ -268,6 +272,7 @@ public class Player : MonoBehaviour
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 6, 14, 0));
                     AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 10, 16, 0));
+                    //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = true;
                 break;
