@@ -398,7 +398,7 @@ public class Piece : MonoBehaviour
         if (-position.y -4 > 0)
         {
             //print("block height reward: " + 8 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
-            //player.AI.AddReward(player.AI.NormalizeObservationValue(-position.y - 4,4 * 6, 0));
+            player.AI.AddReward(player.AI.NormalizeObservationValue(-position.y - 4,4 * 6, 0));
         }
         if (position.x < 0)
         {
