@@ -102,11 +102,11 @@ public class TetrisAI : Agent
         //    sensor.AddObservation(NormalizeObservationValue(player.boardHeightMap[i], player.fieldSize.y, 0));
         //}
 
-        ObserveTetromino(player.holdingPiece, sensor);
+        sensor.AddObservation(NormalizeObservationValue(ObserveTetromino(player.holdingPiece), 7, 0));
 
         for (int i = 0; i < 3; i++)
         {
-            ObserveTetromino(player.tetrominoBag1[i], sensor);
+            sensor.AddObservation(NormalizeObservationValue(ObserveTetromino(player.tetrominoBag1[i]), 7, 0));
         }
 
         sensor.AddObservation(piece.previousHold);
@@ -129,94 +129,40 @@ public class TetrisAI : Agent
     {
         if (value > 0)
         {
-            return (((float)value / ((float)maximum )));
-        } else if (value < 0)
+            return (((float)value / ((float)maximum)));
+        }
+        else if (value < 0)
         {
             return (((float)value) / ((float)maximum));
-        } else
+        }
+        else
         {
             return 0;
         }
     }
 
-   
 
-    public void ObserveTetromino(TetrominoData tetrominoData, VectorSensor sensor)
+
+    public int ObserveTetromino(TetrominoData tetrominoData)
     {
         switch (tetrominoData.tetromino)
         {
             default:
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                break;
+                return 0;
             case Tetromino.I:
-                sensor.AddObservation(1);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                break;
+                return 1;
             case Tetromino.O:
-                sensor.AddObservation(0);
-                sensor.AddObservation(1);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                break;
+                return 2;
             case Tetromino.T:
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(1);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                break;
+                return 3;
             case Tetromino.J:
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(1);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                break;
+                return 4;
             case Tetromino.S:
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(1);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                break;
+                return 5;
             case Tetromino.L:
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(1);
-                sensor.AddObservation(0);
-                break;
+                return 6;
             case Tetromino.Z:
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(0);
-                sensor.AddObservation(1);
-                break;
+                return 7;
         }
     }
 
