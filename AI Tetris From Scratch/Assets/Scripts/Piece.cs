@@ -143,14 +143,14 @@ public class Piece : MonoBehaviour
             if (IsValidLocation(this, tryPosition))
             {
                 position = tryPosition;
-                player.AI.AddReward(1/10);
+                player.AI.AddReward(player.validPiecePosReward);
 
                 HardDropPiece();
 
             }
             else
             {
-                player.AI.AddReward(-25);
+                //player.AI.AddReward(-1);
                 HardDropPiece();
                 //resetting piece rotation
                 //nextRotation = -1;
@@ -391,11 +391,12 @@ public class Piece : MonoBehaviour
         if (-position.y -4 > 0)
         {
             //print("block height reward: " + 8 * player.AI.NormalizeObservationValue(-position.y - 7, 10 * 14, -10));
-            player.AI.AddReward(player.AI.NormalizeObservationValue(-position.y - 4,4 * 6, 0));
+            player.AI.AddReward(player.pieceHeightReward * player.AI.NormalizeObservationValue(-position.y - 4,4 * 6, 0));
         }
         if (position.x < 0)
         {
-            //player.AI.AddReward(player.AI.NormalizeObservationValue(-position.x, 4 * 5, 0));
+            //player.AI.
+            //(player.AI.NormalizeObservationValue(-position.x, 4 * 5, 0));
         } else
         {
             //player.AI.AddReward(player.AI.NormalizeObservationValue(position.x, 4 * 5, 0));
@@ -413,7 +414,7 @@ public class Piece : MonoBehaviour
             Vector2Int blockPosDown = position + block + Vector2Int.down;
             if (IsTileValid(blockPosDown) && IsWithinBounds(blockPosDown))
             {
-                player.AI.AddReward(-2);
+                player.AI.AddReward(player.holeMadePenalty);
                 //print("created gap");
             }
         }

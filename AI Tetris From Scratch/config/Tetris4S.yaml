@@ -5,24 +5,24 @@ behaviors:
       batch_size: 512
       buffer_size: 8192
       learning_rate: 1.2e-3
-      beta: 2.0e-4
+      beta: 1.5e-3
       epsilon: 0.26
       lambd: 0.99
       num_epoch: 3
       learning_rate_schedule: linear
     network_settings:
       normalize: false
-      hidden_units: 1024
+      hidden_units: 256
       num_layers: 4
     reward_signals:
       extrinsic:
         gamma: 0.98
         strength: 1.0
       gail:
-        strength: 0.4
+        strength: 0.2
         gamma: 0.99
         demo_path: Assets/Demonstrations/TetrisMC.demo
-    max_steps: 3.0e+8
+    max_steps: 2.0e+8
     time_horizon: 1024
     summary_freq: 100000
     keep_checkpoints: 30
@@ -33,4 +33,3 @@ behaviors:
       save_steps: 20000
       swap_steps: 20000
       team_change: 100000
-

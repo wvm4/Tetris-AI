@@ -10,11 +10,7 @@ using JetBrains.Annotations;
 using System.Runtime.CompilerServices;
 using Unity.MLAgents;
 
-public class Script : MonoBehaviour
-{
 
-
-}
 
 public class Player : MonoBehaviour
 {
@@ -50,6 +46,17 @@ public class Player : MonoBehaviour
     public float clearLineRewardMultiplier;
     public int linesClearedTotal;
     public int[] boardHeightMap;
+    public int gameOverHeight;
+    public int pieceHeightReward;
+    public int rowNearFilledReward;
+    public int lineClear1Reward;
+    public int lineClear2Reward;
+    public int lineClear3Reward;
+    public int lineClear4Reward;
+    public int holeMadePenalty;
+    public int validPiecePosReward;
+
+
 
     public Vector2Int[] data;
 
@@ -63,6 +70,17 @@ public class Player : MonoBehaviour
         if (firstLoop)
         {
             AI.statsRecorder = Academy.Instance.StatsRecorder;
+            gameOverHeight = (int) Academy.Instance.EnvironmentParameters.GetWithDefault("game_over_height", 19.0f);
+            pieceHeightReward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("piece_height_reward", 1.0f);
+            rowNearFilledReward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("row_near_filled_reward", 1.0f);
+            lineClear1Reward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("1_line_clear_reward", 1.0f);
+            lineClear2Reward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("2_line_clear_reward", 2.0f);
+            lineClear3Reward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("3_line_clear_reward", 3.0f);
+            lineClear4Reward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("4_line_clear_reward", 3.0f);
+            holeMadePenalty = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("hole_made_penalty", -0.16f);
+            validPiecePosReward = (int)Academy.Instance.EnvironmentParameters.GetWithDefault("valid_piece_pos_reward", 0.10f);
+
+
             field = new int[fieldSize.x, fieldSize.y];
             boardHeightMap = new int[fieldSize.x];
             tetrominoBagOriginal = tetrominoBag1;
@@ -82,7 +100,7 @@ public class Player : MonoBehaviour
 
         tilemap.ClearAllTiles();
         ghost.tilemap.ClearAllTiles();
-
+        garbageRowsToAdd = 0;
 
 
         tetrominoBag1 = tetrominoBagOriginal;
@@ -176,7 +194,7 @@ public class Player : MonoBehaviour
             {
                 //print("row: " + i + "reward: " + AI.NormalizeObservationValue(3 * (blocksThisRow - 6), 20 * 9, 0).ToString());
                 //print("blocksThisRow reward: " + 15 * AI.NormalizeObservationValue((blocksThisRow - 6), 20 * 3, 0));
-                AI.AddReward( 1/12 * (blocksThisRow - 7) * (blocksThisRow - 7));
+                AI.AddReward( rowNearFilledReward * 1/12 * (blocksThisRow - 7) * (blocksThisRow - 7));
             }
 
         }
@@ -231,7 +249,7 @@ public class Player : MonoBehaviour
                 if (piece.trainingMode)
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 1, 14, 0));
-                    AI.AddReward(clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared, 16, 0));
+                    AI.AddReward(lineClear1Reward * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared, 16, 0));
                     //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = false;
@@ -241,7 +259,7 @@ public class Player : MonoBehaviour
                 if (piece.trainingMode)
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 2, 14, 0));
-                    AI.AddReward(2 * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 3, 16, 0));
+                    AI.AddReward(lineClear2Reward * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 3, 16, 0));
                     //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = false;
@@ -251,7 +269,7 @@ public class Player : MonoBehaviour
                 if (piece.trainingMode)
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 4, 14, 0));
-                    AI.AddReward(3 * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 7, 16, 0));
+                    AI.AddReward(lineClear3Reward * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 7, 16, 0));
                     //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = false;
@@ -263,7 +281,7 @@ public class Player : MonoBehaviour
                     if (piece.trainingMode)
                     {
                         //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 8, 14, 0));
-                        AI.AddReward(3 * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 12, 16, 0));
+                        AI.AddReward(lineClear4Reward * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 12, 16, 0));
                         //AI.AddReward(6 * 6);
                     }
                 }
@@ -271,7 +289,7 @@ public class Player : MonoBehaviour
                 if (piece.trainingMode)
                 {
                     //print("clear reward: " + clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 6, 14, 0));
-                    AI.AddReward(3 * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 10, 16, 0));
+                    AI.AddReward(lineClear4Reward * clearLineRewardMultiplier * AI.NormalizeObservationValue(linesCleared + 10, 16, 0));
                     //AI.AddReward(linesCleared * linesCleared);
                 }
                 lastClearWasTetris = true;
@@ -511,7 +529,7 @@ public class Player : MonoBehaviour
         }
 
 
-        if (highestPieceHeight > 19)
+        if (highestPieceHeight > gameOverHeight)
         {
             GameOver();
         }
